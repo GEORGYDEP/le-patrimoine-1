@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="fr-BE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon patrimoine personnel — Le patrimoine (partie 1)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e1118; --bg2:#151925; --bg3:#1d2232; --card:#181c29; --card2:#21263a;
+  --accent:#22d68a; --orange:#ff8a3d; --gold:#ffc940; --violet:#8b6cf6;
+  --text:#eef1f8; --text2:#aab2c6; --text3:#6e7790; --border:#2a3044; --radius:16px;
+  --success:#22d68a; --error:#ff4f6d;
+  --av:#4f8ef7; --de:#f0517a; --cap:#22d68a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;
+  background-image:radial-gradient(1100px 600px at 5% -10%,rgba(79,142,247,.13),transparent 60%),radial-gradient(900px 500px at 105% 5%,rgba(34,214,138,.10),transparent 60%);background-attachment:fixed}
+button{font-family:inherit;cursor:pointer;color:inherit}
+.mono{font-family:'Space Mono',monospace}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+b,strong{font-weight:800}
+small{font-size:.82em}
+
+/* ---------- HUD ---------- */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(14,17,24,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.hud{display:flex;align-items:center;gap:12px;padding:9px 16px}
+.hud-l{display:flex;align-items:center;gap:8px;font-weight:800;white-space:nowrap}
+.logo{font-size:1.45rem}
+.app-title{font-size:1rem}
+.hud-pills{display:flex;gap:6px;margin:0 auto}
+.npill{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);background:var(--bg3);color:var(--text2);font-weight:800;display:grid;place-items:center;font-size:.85rem}
+.npill.done{background:var(--accent);border-color:var(--accent);color:#06150d}
+.npill.cur{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,201,64,.22)}
+.npill.cur:not(.done){color:var(--gold)}
+.npill.locked{opacity:.4;cursor:not-allowed}
+.hud-r{display:flex;align-items:center;gap:7px}
+.chip-hud{padding:5px 10px;border-radius:999px;background:var(--bg3);border:1px solid var(--border);font-weight:700;font-size:.84rem;white-space:nowrap}
+.chip-hud.gold{color:var(--gold)}
+.chip-hud.hot{border-color:var(--orange);color:var(--orange);animation:pulse 1s infinite}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);font-size:1.05rem;display:grid;place-items:center}
+.xpbar{display:flex;align-items:center;gap:12px;padding:5px 16px 9px;font-size:.8rem;color:var(--text2)}
+.rank{font-weight:800;color:var(--text);white-space:nowrap}
+.track{position:relative;flex:1;height:10px;border-radius:999px;background:var(--bg3);border:1px solid var(--border)}
+.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--gold));width:0;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.mark{position:absolute;top:-5px;width:2px;height:18px;background:var(--text3);border-radius:2px}
+.mark.reached{background:var(--gold)}
+.mark span{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);font-size:.85rem}
+.next{white-space:nowrap}
+.next b{color:var(--gold)}
+
+/* ---------- Mise en page ---------- */
+main{max-width:940px;margin:0 auto;padding:22px 16px 90px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.25);margin-bottom:18px}
+h1{font-size:2rem;line-height:1.15;font-weight:900}
+h2{font-size:1.3rem;font-weight:800;line-height:1.25}
+h3{font-size:1.02rem;font-weight:800;margin-bottom:6px}
+.kicker{font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#b9a6ff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);font-weight:700;font-size:1rem;transition:transform .15s,background .2s,opacity .2s}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#06150d}
+.btn.orange{background:transparent;border-color:var(--orange);color:var(--orange)}
+.btn.green{background:transparent;border-color:var(--accent);color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.sm{padding:7px 12px;font-size:.85rem;border-radius:10px}
+.btn.big{padding:14px 28px;font-size:1.08rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.t-av{color:#8fb7ff;font-weight:800}
+.t-de{color:#ff8fab;font-weight:800}
+.t-cap{color:#4ff0a8;font-weight:800}
+
+/* ---------- Accueil ---------- */
+.hero{display:grid;grid-template-columns:1.35fr 1fr;gap:20px;align-items:center}
+.hero h1{font-size:2.4rem;margin:6px 0}
+.sub{color:var(--text2);font-size:1.08rem}
+.counters{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 10px}
+.counter{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:7px 12px;font-weight:700;font-size:.9rem}
+.counter b{color:var(--gold)}
+.who{font-size:.88rem;color:var(--text2)}
+.cover{display:flex;gap:10px;align-items:flex-end;justify-content:center}
+.cv-col{display:flex;flex-direction:column;gap:8px}
+.col{width:92px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;color:#fff;font-weight:800;font-size:.82rem;box-shadow:0 8px 18px rgba(0,0,0,.3)}
+.col span{font-size:1.9rem;line-height:1}
+.cv-av{height:200px;background:linear-gradient(180deg,#5b9bff,#2c5fc4)}
+.cv-cap{height:118px;background:linear-gradient(180deg,#2fe39a,#13915c)}
+.cv-de{height:74px;background:repeating-linear-gradient(45deg,#f0517a 0 8px,#d63d68 8px 16px)}
+.cover-cap{text-align:center;color:var(--text2);font-weight:700;margin-top:8px;font-size:.9rem}
+.enquete h2{font-size:1.45rem}
+.suspects{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.suspect{background:var(--bg2);border:2px solid var(--border);border-radius:16px;padding:14px;transition:border-color .2s,box-shadow .2s}
+.suspect.voted{border-color:var(--gold);box-shadow:0 0 0 4px rgba(255,201,64,.15)}
+.s-head{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.s-head .avatar{width:70px;height:auto;flex:none}
+.s-head b{font-size:1.25rem;display:block}
+.s-head small{color:var(--text2)}
+.s-list{list-style:none;display:grid;gap:5px;font-size:.94rem}
+.s-list li{display:flex;gap:8px;align-items:flex-start}
+.s-list li.d{color:#ffa3b8}
+.s-list li.c{color:#9ef5cd}
+.vote-q{font-weight:800;font-size:1.1rem;text-align:center;margin:6px 0 10px}
+.vote-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.vote{padding:14px;border-radius:14px;border:2px solid var(--border);background:var(--bg3);font-weight:800;font-size:1.05rem}
+.vote.on{border-color:var(--gold);background:rgba(255,201,64,.12);color:var(--gold)}
+.center{text-align:center}
+.lb-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.note{font-size:.85rem;color:var(--text2)}
+
+/* ---------- Parcours ---------- */
+.hub-intro p{color:var(--text2);margin-top:4px}
+.path{position:relative;padding:4px 0 10px}
+.path::before{content:'';position:absolute;left:50%;top:10px;bottom:10px;border-left:3px dashed var(--border);transform:translateX(-50%)}
+.step{position:relative;display:grid;grid-template-columns:1fr 70px 1fr;align-items:center;margin:16px 0}
+.node{grid-column:2;grid-row:1;width:56px;height:56px;margin:auto;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:1.2rem;background:var(--bg3);border:3px solid var(--border);z-index:1}
+.node.done{background:var(--accent);border-color:var(--accent);color:#06150d}
+.node.open{border-color:var(--gold);color:var(--gold);animation:glow 1.6s infinite}
+.node.locked{opacity:.55}
+.mcard{grid-row:1;text-align:left;display:flex;flex-direction:column;gap:4px;padding:16px;border-radius:16px;border:1px solid var(--border);background:var(--card);box-shadow:0 8px 22px rgba(0,0,0,.25);transition:transform .15s,border-color .2s}
+.mcard:hover:not(:disabled){transform:translateY(-2px);border-color:var(--text3)}
+.mcard.locked{opacity:.5;cursor:not-allowed}
+.step.left .mcard{grid-column:1}
+.step.right .mcard{grid-column:3}
+.mc-top{display:flex;align-items:center;gap:8px}
+.mc-ico{font-size:1.6rem}
+.mc-title{font-size:1.08rem;line-height:1.25}
+.mc-desc{color:var(--text2);font-size:.9rem}
+.xpinfo{font-size:.85rem;color:var(--gold);font-weight:700}
+.stars{color:var(--gold);font-size:1.15rem;letter-spacing:2px}
+.mc-btn{margin-top:6px;font-weight:800;color:var(--accent);font-size:.92rem}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:10px}
+.badge{border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;background:var(--bg2);display:flex;flex-direction:column;gap:3px}
+.badge.off{opacity:.42;filter:grayscale(1)}
+.badge .bi{font-size:2rem}
+.badge small{color:var(--text2);line-height:1.3}
+
+/* ---------- Briefing ---------- */
+.brief-head{display:flex;gap:16px;align-items:center;margin-bottom:12px}
+.big-ico{font-size:2.6rem;width:72px;height:72px;flex:none;border-radius:18px;display:grid;place-items:center;background:var(--bg3);border:1px solid var(--border)}
+.h1m{font-size:1.7rem}
+.goals{background:rgba(34,214,138,.06);border:1px solid rgba(34,214,138,.3);border-radius:14px;padding:12px 16px;margin:10px 0}
+.goals ul{list-style:none;display:grid;gap:4px}
+.goals li::before{content:'✔ ';color:var(--accent);font-weight:900}
+.box{border-radius:14px;padding:14px 16px;margin:12px 0;border:1px solid}
+.box.rappel{background:rgba(139,108,246,.08);border-color:rgba(139,108,246,.4)}
+.box.ex{background:rgba(255,138,61,.08);border-color:rgba(255,138,61,.45)}
+.box.plus{background:rgba(255,201,64,.06);border-color:rgba(255,201,64,.4)}
+.box.plus summary{cursor:pointer;font-weight:800;color:var(--gold)}
+.box.plus[open] summary{margin-bottom:6px}
+.box ul,.box ol{margin:6px 0 4px 20px;display:grid;gap:3px}
+.formula{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:12px 0 4px;font-weight:900;font-size:1.15rem}
+.formula span{padding:6px 14px;border-radius:10px;border:2px solid}
+.f-cap{background:#17a86a;border-color:#17a86a!important;color:#fff}
+.f-av{border-color:var(--av)!important;color:#8fb7ff}
+.f-de{border-color:var(--de)!important;color:#ff8fab}
+.predict{margin-top:16px;padding-top:14px;border-top:1px dashed var(--border)}
+.pred-row{display:flex;gap:10px;flex-wrap:wrap}
+.pred{flex:1;min-width:150px;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg3);font-weight:700;font-size:.98rem}
+.pred.on{border-color:var(--gold);background:rgba(255,201,64,.13);color:var(--gold)}
+.brief-actions{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+
+/* ---------- Mini-vidéos ---------- */
+.video{margin:14px 0;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:12px}
+.vhead{font-weight:800;margin-bottom:8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.vhead small{color:var(--text2);font-weight:600}
+.vstage{position:relative;width:100%;aspect-ratio:16/8.6;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 30% 15%,#27324e,#131722 72%);border:1px solid var(--border);container-type:inline-size}
+.vin{position:absolute;inset:0;font-size:13px;font-size:2.1cqw}
+.vstage .el{position:absolute;transition:all .9s cubic-bezier(.2,.8,.2,1)}
+.vstage .avatar{width:100%;height:auto;display:block}
+.vstage .name{text-align:center;font-weight:800;font-size:1.15em}
+.vbig{position:absolute;inset:0;margin:auto;width:15cqw;height:15cqw;border-radius:50%;border:none;background:rgba(34,214,138,.93);color:#06150d;font-size:6cqw;z-index:6;box-shadow:0 0 0 1.4cqw rgba(34,214,138,.25);display:grid;place-items:center;padding-left:1cqw}
+.vstage.started .vbig{display:none}
+.vcap{min-height:3.2em;margin-top:10px;padding:10px 14px;border-radius:12px;background:#0c0f16;border:1px solid var(--border);font-size:1.02rem;text-align:center}
+.vctrl{display:flex;align-items:center;gap:12px;margin-top:10px}
+.vprog{flex:1;display:flex;gap:4px}
+.vprog span{flex:1;height:6px;border-radius:4px;background:var(--bg3)}
+.vprog span.on{background:var(--accent)}
+/* vidéo 1 : le sac à dos de Sam */
+.v-sac .sam{left:3%;top:20%;width:16%}
+.v-sac .vbox{top:13%;height:80%;border-radius:2cqw;border:.4cqw solid;opacity:0;transform:scale(.95)}
+.v-sac .bav{left:23%;width:41%;border-color:#4f8ef7;background:rgba(79,142,247,.12)}
+.v-sac .bde{left:66%;width:31%;border-color:#f0517a;background:rgba(240,81,122,.12)}
+.v-sac .bh{font-weight:900;text-align:center;margin-top:1cqw;font-size:1.2em;letter-spacing:.12em}
+.v-sac .bav .bh{color:#8fb7ff}.v-sac .bde .bh{color:#ff8fab}
+.v-sac .bs{text-align:center;color:#aab2c6;font-size:.85em}
+.v-sac.s1 .vbox{opacity:1;transform:none}
+.v-sac .it{left:9%;top:48%;width:36%;opacity:0;transform:scale(.4);background:#232a3d;border:.3cqw solid #3b4560;border-radius:1.4cqw;padding:.9cqw 1.2cqw;font-weight:700;display:flex;align-items:center;gap:1cqw;white-space:nowrap}
+.v-sac .it span{font-size:1.5em}
+.v-sac .it4{width:28.5%}
+.v-sac.s1 .it1{left:25.5%;top:31%;opacity:1;transform:none;border-color:#4f8ef7}
+.v-sac.s2 .it2{left:25.5%;top:50%;opacity:1;transform:none;border-color:#4f8ef7}
+.v-sac.s3 .it3{left:25.5%;top:69%;opacity:1;transform:none;border-color:#4f8ef7}
+.v-sac.s4 .it4{left:67.3%;top:31%;opacity:1;transform:none;border-color:#f0517a}
+.v-sac .brace{left:23%;width:74%;top:4%;height:7%;opacity:0;border:.4cqw solid var(--gold);border-bottom:none;border-radius:1.5cqw 1.5cqw 0 0;text-align:center}
+.v-sac .brace span{position:relative;top:-1.5cqw;background:#1f2638;padding:0 1.2cqw;color:var(--gold);font-weight:900;letter-spacing:.15em}
+.v-sac.s5 .brace{opacity:1}
+/* vidéo 2 : les 3 portes */
+.v-portes .jade{left:2%;top:20%;width:14%}
+.v-portes .want{left:17%;top:9%;width:14%;text-align:center}
+.v-portes .piggy{left:17%;top:45%;width:14%;text-align:center}
+.v-portes .big{font-size:3.1em;line-height:1.05;display:block}
+.v-portes .price{display:inline-block;background:var(--gold);color:#2a1d00;font-weight:900;border-radius:1cqw;padding:.1cqw 1cqw;margin-top:.4cqw}
+.v-portes .miss{left:15%;top:81%;width:18%;text-align:center;color:#ff8fab;font-weight:800;font-size:.92em}
+.v-portes .door{top:9%;height:80%;width:20.5%;opacity:0;transform:translateY(6%);perspective:60cqw}
+.v-portes .d1{left:34%}.v-portes .d2{left:56%}.v-portes .d3{left:78%}
+.v-portes.s1 .door{opacity:1;transform:none}
+.v-portes .dback{position:absolute;inset:0;border-radius:1.6cqw;background:#202741;border:.35cqw solid #3b4560;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7cqw;text-align:center;padding:1cqw;transition:border-color .6s}
+.v-portes .dback .ic{font-size:2.3em;line-height:1.1}
+.v-portes .dback small{color:#aab2c6;font-size:.82em;line-height:1.2}
+.v-portes .tag{font-style:normal;font-weight:900;border-radius:99px;padding:.15cqw 1.2cqw;font-size:.82em}
+.v-portes .tag.ok{background:#22d68a;color:#06150d}
+.v-portes .tag.bad{background:#f0517a;color:#fff}
+.v-portes .dfront{position:absolute;inset:0;border-radius:1.6cqw;background:linear-gradient(135deg,#8b6cf6,#5536c9);display:grid;place-items:center;font-size:3.2em;font-weight:900;color:#fff;transform-origin:left center;transition:transform 1.1s cubic-bezier(.3,.7,.2,1),opacity 1.1s;box-shadow:inset 0 0 0 .5cqw rgba(255,255,255,.15)}
+.v-portes .dfront::after{content:'';position:absolute;right:12%;top:52%;width:1.6cqw;height:1.6cqw;border-radius:50%;background:var(--gold)}
+.v-portes.s2 .d1 .dfront,.v-portes.s3 .d2 .dfront,.v-portes.s4 .d3 .dfront{transform:rotateY(-82deg);opacity:.25}
+.v-portes.s2 .d1 .dback{border-color:#22d68a}
+.v-portes.s3 .d2 .dback,.v-portes.s4 .d3 .dback{border-color:#f0517a}
+.v-portes.s5 .door{opacity:.28}
+.v-portes .final{left:34%;top:27%;width:63%;opacity:0;transform:scale(.6);background:#1b2132;border:.4cqw solid #f0517a;border-radius:2cqw;padding:2cqw;text-align:center;z-index:3;font-weight:800;font-size:1.1em;display:grid;gap:1cqw}
+.v-portes.s5 .final{opacity:1;transform:none}
+.v-portes.s5 .want{left:3%;top:63%}
+.v-portes.s5 .miss{opacity:0}
+/* vidéo 3 : la balance du capital */
+.v-balance .max{left:2%;top:16%;width:13%}
+.v-balance .goods{left:16.5%;top:13%;width:24%;display:grid;gap:1.1cqw}
+.v-balance .goods div{background:#232a3d;border:.3cqw solid #4f8ef7;border-radius:1.2cqw;padding:.8cqw 1cqw;font-weight:700;white-space:nowrap}
+.v-balance .bar{height:13%;border-radius:1.2cqw;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;white-space:nowrap;overflow:hidden}
+.v-balance .bav{left:43%;top:14%;width:0;background:linear-gradient(90deg,#3b7be8,#5b9bff)}
+.v-balance.s1 .bav{width:54%}
+.v-balance .uncle{left:16.5%;top:61%;width:24%;opacity:0;background:#2a1d27;border:.3cqw solid #f0517a;border-radius:1.2cqw;padding:.8cqw 1cqw;font-weight:700;font-size:.92em;white-space:nowrap}
+.v-balance.s2 .uncle{opacity:1}
+.v-balance .bde{left:78%;top:61%;width:13.5%;opacity:0;background:repeating-linear-gradient(45deg,#f0517a 0 1cqw,#d33d66 1cqw 2cqw)}
+.v-balance.s2 .bde{opacity:1}
+.v-balance.s3 .bde{left:43%;top:31%}
+.v-balance .bcap{left:56.5%;top:31%;width:0;background:linear-gradient(90deg,#17a86a,#2fe39a)}
+.v-balance.s4 .bcap{width:40.5%}
+.v-balance .lbl{top:45%;opacity:0;font-weight:800;font-size:.85em}
+.v-balance .lbl-de{left:43%;color:#ff8fab}
+.v-balance .lbl-cap{left:59%;color:#4ff0a8}
+.v-balance.s3 .lbl-de,.v-balance.s4 .lbl-cap{opacity:1}
+.v-balance .formula-v{left:16.5%;top:77%;width:80.5%;opacity:0;transform:translateY(25%);text-align:center;background:#1b2132;border:.35cqw solid var(--gold);border-radius:1.6cqw;padding:1.1cqw;font-weight:800;font-size:1.08em}
+.v-balance.s5 .formula-v{opacity:1;transform:none}
+/* mini-vidéos : mise en page verticale sur téléphone */
+@media (max-width:600px){
+  .vstage{aspect-ratio:4/5}
+  .vin{font-size:3.5cqw}
+  .v-sac .sam{left:5%;top:2%;width:17%}
+  .v-sac .vbox.bav{left:3%;top:30%;width:94%;height:39%}
+  .v-sac .vbox.bde{left:3%;top:72%;width:94%;height:25%}
+  .v-sac .it{left:30%;top:8%;width:60%}
+  .v-sac .it4{width:88%}
+  .v-sac.s1 .it1{left:6%;top:40%}
+  .v-sac.s2 .it2{left:6%;top:49.5%}
+  .v-sac.s3 .it3{left:6%;top:59%}
+  .v-sac.s4 .it4{left:6%;top:83%}
+  .v-sac .brace{left:1.2%;top:27%;width:97.6%;height:71.8%;border:.6cqw solid var(--gold);border-radius:2cqw}
+  .v-sac .brace span{top:-2.2cqw}
+  .v-portes .jade{left:3%;top:3%;width:19%}
+  .v-portes .want{left:27%;top:5%;width:20%}
+  .v-portes .piggy{left:49%;top:5%;width:20%}
+  .v-portes .miss{left:69%;top:9%;width:29%;font-size:.9em}
+  .v-portes .door{top:33%;height:62%;width:30%}
+  .v-portes .d1{left:2.5%}.v-portes .d2{left:35%}.v-portes .d3{left:67.5%}
+  .v-portes .final{left:5%;top:40%;width:90%}
+  .v-portes.s5 .want{left:27%;top:5%}
+  .v-balance .max{left:3%;top:3%;width:19%}
+  .v-balance .goods{left:26%;top:3%;width:71%;gap:1.4cqw}
+  .v-balance .bar{height:8%}
+  .v-balance .bav{left:5%;top:33%}
+  .v-balance.s1 .bav{width:90%}
+  .v-balance .uncle{left:5%;top:63%;width:auto}
+  .v-balance .bde{left:72.5%;top:63%;width:22.5%}
+  .v-balance.s3 .bde{left:5%;top:44%}
+  .v-balance .bcap{left:27.5%;top:44%}
+  .v-balance.s4 .bcap{width:67.5%}
+  .v-balance .lbl{top:53%}
+  .v-balance .lbl-de{left:5%}
+  .v-balance .lbl-cap{left:30%}
+  .v-balance .formula-v{left:4%;top:76%;width:92%;font-size:1em}
+}
+
+/* ---------- Questions ---------- */
+.qtop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.qtitle{font-weight:800;color:var(--text2)}
+.pills{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.pill{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;font-weight:800;background:var(--bg3);border:2px solid var(--border);color:var(--text2)}
+.pill.correct{background:var(--accent);border-color:var(--accent);color:#06150d}
+.pill.hint{background:var(--orange);border-color:var(--orange);color:#1d0d00}
+.pill.shown{background:var(--error);border-color:var(--error);color:#fff}
+.pill.cur{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,201,64,.3)}
+.pill.cur:not(.correct):not(.hint):not(.shown){color:var(--gold);background:rgba(255,201,64,.15)}
+.qtag{font-family:'Space Mono',monospace;font-size:.74rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.prompt{font-size:1.16rem;font-weight:700;margin-bottom:8px;line-height:1.45}
+.data{display:block;background:var(--bg2);border:1px dashed var(--text3);border-radius:12px;padding:10px 14px;margin:10px 0;font-size:.98rem;line-height:1.6}
+.statement{font-size:1.1rem;font-style:italic;background:var(--bg2);border-left:4px solid var(--violet);padding:12px 14px;border-radius:10px;margin:10px 0}
+.hint-line{font-size:.86rem;color:var(--text2);margin:6px 0}
+.opts{display:grid;gap:10px;margin:12px 0}
+.opt{display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border-radius:12px;border:2px solid var(--border);background:var(--bg2);font-size:1rem;font-weight:500;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--text3)}
+.opt.sel{border-color:var(--gold);background:rgba(255,201,64,.09)}
+.opt.ok{border-color:var(--accent);background:rgba(34,214,138,.13)}
+.opt.bad{border-color:var(--error);background:rgba(255,79,109,.1)}
+.opt.miss{border:2px dashed var(--accent)}
+.opt:disabled{cursor:default}
+.letter{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--bg3);font-weight:800;flex:none}
+.ckbox{width:24px;height:24px;border-radius:6px;border:2px solid var(--text3);display:grid;place-items:center;flex:none;font-size:.85rem;font-weight:900}
+.opt.sel .ckbox{border-color:var(--gold);color:var(--gold)}
+.vf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.vf{justify-content:center;font-size:1.12rem;font-weight:800;padding:16px}
+.inrow{display:flex;align-items:center;gap:10px;margin:14px 0 6px}
+.ans{flex:1;max-width:340px;padding:13px 16px;border-radius:12px;border:2px solid var(--border);background:var(--bg3);color:var(--text);font-size:1.15rem;font-family:'Space Mono',monospace;outline:none}
+.ans:focus{border-color:var(--gold)}
+.ans.ok{border-color:var(--accent)}
+.ans.bad{border-color:var(--error)}
+.unit{font-weight:800;font-size:1.15rem;color:var(--text2)}
+.calc{min-height:1.5em;color:var(--text2);font-family:'Space Mono',monospace;font-size:.9rem}
+.calc b{color:var(--gold)}
+.reserve{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border:2px dashed var(--border);border-radius:12px;min-height:58px;margin:10px 0;background:var(--bg2)}
+.reserve .empty{color:var(--text3);font-size:.9rem;align-self:center}
+.chip{padding:8px 12px;border-radius:10px;border:2px solid var(--border);background:var(--card2);font-size:.93rem;font-weight:600;text-align:left;line-height:1.35;transition:transform .15s,border-color .15s}
+.chip:hover:not(:disabled){border-color:var(--text3)}
+.chip.picked{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,201,64,.25);transform:translateY(-2px)}
+.chip:disabled{cursor:default}
+.chip.lk-g,.mrow.lk-g,.slot.lk-g{border-color:var(--accent);background:rgba(34,214,138,.12)}
+.chip.lk-o,.mrow.lk-o,.slot.lk-o{border-color:var(--orange);background:rgba(255,138,61,.12)}
+.chip.lk-r,.mrow.lk-r,.slot.lk-r{border-color:var(--error);background:rgba(255,79,109,.12)}
+.chip.lk-g::after,.chip.lk-o::after{content:' 🔒';font-size:.8em}
+.bounce{animation:bounce .55s}
+.corr{display:block;font-size:.84rem;color:#ffb3c1;font-weight:800;margin-top:3px}
+.zones{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.zone{border-radius:14px;border:2px solid;min-height:150px;display:flex;flex-direction:column;overflow:hidden}
+.zone.z-av{border-color:rgba(79,142,247,.65);background:rgba(79,142,247,.06)}
+.zone.z-de{border-color:rgba(240,81,122,.65);background:rgba(240,81,122,.06)}
+.zone.z-ok{border-color:rgba(34,214,138,.65);background:rgba(34,214,138,.05)}
+.zone-head{border:none;padding:10px 12px;text-align:left;background:rgba(255,255,255,.04);display:flex;flex-direction:column}
+.zone-head b{font-size:1.06rem}
+.zone-head small{color:var(--text2)}
+.zone-head:disabled{cursor:default}
+.drop{display:inline-block;margin-top:4px;font-size:.8rem;color:var(--gold);font-weight:800;animation:pulse 1s infinite}
+.zone-body{display:flex;flex-wrap:wrap;gap:8px;padding:10px;align-content:flex-start}
+.mrow{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center;padding:9px;border-radius:12px;border:2px solid var(--border);margin-bottom:8px;background:var(--bg2)}
+.mterm{font-weight:900;font-size:1.02rem}
+.mrow .corr{grid-column:2}
+.mdef{display:none;font-size:.85rem;color:var(--text2)}
+@media (max-width:600px){ .mdef{display:block} }
+select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:inherit;font-size:.92rem}
+.slots{list-style:none;display:grid;gap:8px;margin:10px 0}
+.slot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px;border-radius:12px;border:2px dashed var(--border);background:var(--bg2);min-height:54px}
+.slot.lk-g,.slot.lk-o,.slot.lk-r{border-style:solid}
+.slot .num{width:30px;height:30px;border-radius:50%;background:var(--violet);color:#fff;display:grid;place-items:center;font-weight:800;flex:none}
+.slot .ph{color:var(--text3)}
+.slot .chip{flex:1}
+.slot .corr{flex-basis:100%;padding-left:40px}
+.doc{background:#fbf6e9;color:#2b2b2b;border-radius:12px;padding:16px 18px;margin:12px 0;box-shadow:inset 0 0 0 1px #e6dcc3;background-image:repeating-linear-gradient(180deg,transparent 0 33px,#ece3cc 33px 34px)}
+.doc-title{font-weight:900;color:#5a3fc0;margin-bottom:6px;font-size:1.05rem}
+.line{display:block;width:100%;text-align:left;padding:8px 12px;border:2px solid transparent;border-radius:9px;background:transparent;color:#2b2b2b;font-size:1rem;margin:3px 0;line-height:1.4}
+.line:hover:not(:disabled){background:#f3ead2}
+.line.marked{border-color:#e0a100;background:#fff0bf}
+.line.lk-g{border-color:#14a86b;background:#dcf7ea}
+.line.lk-o{border-color:#e07b1f;background:#ffe8d4}
+.line.lk-r{border-color:#d93355;background:#ffe0e6}
+.line.fa{border-color:#999;border-style:dashed}
+.line:disabled{cursor:default}
+.line .corr{color:#b3123a}
+.fb{border-radius:12px;padding:12px 14px;margin-top:12px;font-size:.98rem;line-height:1.5}
+.fb.ok{background:rgba(34,214,138,.1);border:1px solid rgba(34,214,138,.45)}
+.fb.ok2{background:rgba(255,138,61,.1);border:1px solid rgba(255,138,61,.45)}
+.fb.warn{background:rgba(255,201,64,.08);border:1px solid rgba(255,201,64,.45)}
+.fb.bad{background:rgba(255,79,109,.08);border:1px solid rgba(255,79,109,.45)}
+.fb .expl{margin-top:6px}
+.enq-note{margin-top:10px;padding:10px 12px;border-radius:10px;background:rgba(139,108,246,.12);border:1px solid rgba(139,108,246,.4)}
+.qactions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap}
+.shake{animation:shake .45s}
+
+/* ---------- Bilans ---------- */
+.medal{font-size:4rem;text-align:center;line-height:1.1}
+.bilan-h{text-align:center}
+.bilan-h p{color:var(--text2)}
+.legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:.85rem;color:var(--text2);margin:10px 0}
+.res-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.95rem}
+.res-table th,.res-table td{padding:9px 8px;border-bottom:1px solid var(--border);text-align:center}
+.res-table th:first-child,.res-table td:first-child{text-align:left}
+.res-table th{font-size:.78rem;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center}
+.kpi b{display:block;font-size:1.25rem}
+.kpi small{color:var(--text2)}
+.gradebig{width:84px;height:84px;border-radius:20px;display:grid;place-items:center;font-size:2.4rem;font-weight:900;flex:none;line-height:1;padding-top:8px}
+.gradebig small{font-size:.7rem;font-weight:700;margin-top:-10px}
+.g-A{background:rgba(34,214,138,.15);color:var(--accent);border:2px solid var(--accent)}
+.g-B{background:rgba(79,142,247,.15);color:#8fb7ff;border:2px solid var(--av)}
+.g-C{background:rgba(255,138,61,.15);color:var(--orange);border:2px solid var(--orange)}
+.g-D{background:rgba(255,79,109,.15);color:var(--error);border:2px solid var(--error)}
+.fhead{display:flex;justify-content:space-between;gap:14px;align-items:center}
+.who2{color:var(--text2);font-size:.9rem;margin-top:4px}
+.pred-msg{background:rgba(139,108,246,.1);border:1px solid rgba(139,108,246,.4);border-radius:12px;padding:12px 14px;margin:12px 0}
+.crit{border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin:10px 0;background:var(--bg2)}
+.crit-h{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.st{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.78rem;font-weight:800;white-space:nowrap}
+.st.atteint{background:rgba(34,214,138,.15);color:var(--accent)}
+.st.encours{background:rgba(255,138,61,.15);color:var(--orange)}
+.st.nonatteint{background:rgba(255,79,109,.15);color:var(--error)}
+.ind{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:7px 0;border-top:1px dashed var(--border);font-size:.94rem}
+.ind-r{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--text2)}
+.revoir{grid-column:1/-1;font-size:.88rem;color:#ffd38a;background:rgba(255,201,64,.07);border-radius:8px;padding:6px 10px}
+.allok{background:rgba(34,214,138,.1);border:1px solid rgba(34,214,138,.4);border-radius:12px;padding:12px;margin:10px 0;font-weight:700}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.enq-recap{background:rgba(139,108,246,.1);border:1px solid rgba(139,108,246,.4);border-radius:12px;padding:12px 14px;margin:12px 0}
+
+/* ---------- Modals & effets ---------- */
+.overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px}
+.overlay[hidden]{display:none}
+.modal{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:28px;max-width:440px;width:100%;text-align:center;animation:slideUp .35s;box-shadow:0 0 40px rgba(0,0,0,.5)}
+.modal input{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:1rem;outline:none;margin:14px 0 10px;font-family:inherit}
+.err{color:var(--error);font-size:.84rem;min-height:1.2em;margin-bottom:10px}
+.lb{max-width:620px;text-align:left;max-height:85vh;overflow-y:auto}
+.lb-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--text2);font-size:1.5rem}
+.lb-tabs{display:flex;gap:8px;margin:8px 0 16px}
+.lb-tabs button{flex:1;padding:10px;border-radius:10px;font-weight:700;font-size:.85rem;background:transparent}
+#lbTabApp{border:1px solid var(--accent);color:var(--accent)}
+#lbTabGlobal{border:1px solid var(--orange);color:var(--orange)}
+#lbTabApp.on{background:var(--accent);color:#06150d}
+#lbTabGlobal.on{background:var(--orange);color:#1d0d00}
+.rank-modal{overflow:hidden;border-color:var(--gold)}
+.rays{position:absolute;inset:-60%;background:repeating-conic-gradient(from 0deg,rgba(255,201,64,.13) 0 9deg,transparent 9deg 18deg);animation:spin 14s linear infinite;pointer-events:none}
+.rank-modal>*{position:relative}
+.rank-ico{font-size:4.5rem;animation:pop .6s}
+.toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,170%);z-index:900;background:var(--bg2);border:1px solid var(--gold);border-radius:14px;padding:12px 18px;display:flex;gap:12px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);transition:transform .4s cubic-bezier(.2,.8,.2,1);max-width:92vw}
+.toast.show{transform:translate(-50%,0)}
+.toast .ti{font-size:2rem}
+.toast small{display:block;color:var(--text2)}
+.pt{position:fixed;width:8px;height:8px;border-radius:50%;pointer-events:none;z-index:950;animation:burst .8s ease-out forwards}
+.fxp{position:fixed;pointer-events:none;z-index:951;font-weight:900;color:var(--gold);font-size:1.25rem;text-shadow:0 2px 8px rgba(0,0,0,.6);animation:floatUp 1.15s ease-out forwards}
+.combo{position:fixed;left:50%;top:38%;pointer-events:none;z-index:960;font-size:2.6rem;font-weight:900;color:var(--orange);text-shadow:0 0 24px rgba(255,138,61,.7);animation:comboIn 1.2s ease-out forwards;white-space:nowrap}
+.cf{position:fixed;top:-14px;width:9px;height:14px;z-index:970;pointer-events:none;animation:fall linear forwards}
+footer{text-align:center;color:var(--text3);font-size:.78rem;padding:10px 16px 30px}
+
+@keyframes pulse{50%{opacity:.55}}
+@keyframes glow{50%{box-shadow:0 0 0 8px rgba(255,201,64,.15)}}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+@keyframes bounce{30%{transform:translateY(-8px)}60%{transform:translateY(2px)}}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{0%{transform:scale(.2)}70%{transform:scale(1.2)}}
+@keyframes burst{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
+@keyframes floatUp{to{transform:translateY(-70px);opacity:0}}
+@keyframes comboIn{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}25%{transform:translate(-50%,-50%) scale(1.15);opacity:1}75%{opacity:1}100%{transform:translate(-50%,-80%) scale(1);opacity:0}}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+@media (max-width:768px){
+  .hero{grid-template-columns:1fr}
+  .hero h1{font-size:2rem}
+  .cover .col{width:78px}
+  .chip-hud#hudStreak{display:none}
+}
+@media (max-width:480px){
+  .app-title{display:none}
+  .hud{gap:6px;padding:8px 10px}
+  .chip-hud{padding:4px 7px;font-size:.74rem}
+  .npill{width:28px;height:28px;font-size:.75rem}
+  .icon-btn{width:32px;height:32px}
+  .xpbar{padding:4px 10px 8px;gap:8px}
+  .next{display:none}
+  main{padding:16px 10px 80px}
+  .card{padding:16px}
+  h1,.hero h1{font-size:1.6rem}
+  .h1m{font-size:1.35rem}
+  .suspects,.zones,.vote-row{grid-template-columns:1fr}
+  .path::before{left:28px;transform:none}
+  .step{grid-template-columns:56px 1fr;gap:10px}
+  .step .node{grid-column:1}
+  .step.left .mcard,.step.right .mcard{grid-column:2}
+  .mrow{grid-template-columns:1fr}
+  .mrow .corr{grid-column:1}
+  .vcap{font-size:.92rem}
+  .formula{font-size:.95rem;gap:6px}
+  .formula span{padding:5px 9px}
+  .fhead{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+@media print{
+  body{background:#fff!important}
+  body *{visibility:hidden}
+  .fiche,.fiche *{visibility:visible}
+  .fiche{position:absolute;left:0;top:0;width:100%;background:#fff!important;border:none!important;box-shadow:none!important;color:#000!important}
+  .fiche *{color:#000!important;background:transparent!important;border-color:#999!important;box-shadow:none!important}
+  .noprint{display:none!important}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <header class="hud">
+    <div class="hud-l"><span class="logo" aria-hidden="true">💼</span><span class="app-title">Mon patrimoine</span></div>
+    <nav class="hud-pills" id="navPills" aria-label="Missions"></nav>
+    <div class="hud-r">
+      <span id="globalTimer" class="chip-hud mono" style="display:none">⏱️ 00:00</span>
+      <span class="chip-hud" id="hudStreak" title="Série de bonnes réponses du premier coup">🔥 0</span>
+      <span class="chip-hud gold" id="hudXp">⭐ 0 XP</span>
+      <button class="icon-btn" id="soundBtn" onclick="toggleSound()" aria-label="Activer le son" title="Son">🔇</button>
+      <button class="icon-btn" onclick="goHub()" aria-label="Voir le parcours" title="Parcours">🗺️</button>
+    </div>
+  </header>
+  <div class="xpbar">
+    <span class="rank" id="rankLbl">🎒 Apprenti</span>
+    <div class="track" id="xpTrack"><div class="fill" id="xpFill"></div></div>
+    <span class="next" id="nextLbl"></span>
+  </div>
+</div>
+
+<main id="main"></main>
+<footer>Application d'entraînement · Comptabilité 3e et 4e EQ · Cours « Le patrimoine » — partie 1 : Mon patrimoine personnel</footer>
+
+<div id="fx" aria-hidden="true"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!-- Montée en grade -->
+<div id="rankup" class="overlay" hidden>
+  <div class="modal rank-modal" role="dialog" aria-modal="true" aria-labelledby="rankName">
+    <div class="rays"></div>
+    <div class="kicker">Nouveau rang !</div>
+    <div class="rank-ico" id="rankIco">🐷</div>
+    <h2 id="rankName">Épargnant</h2>
+    <p class="note" id="rankTxt" style="margin:6px 0 16px"></p>
+    <button class="btn primary" id="rankClose" onclick="closeRank()">Continuer ➜</button>
+  </div>
+</div>
+
+<!-- ===== MODAL EMAIL (tracking) ===== -->
+<div id="emailOverlay" class="overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="emailTitle">
+    <div style="font-size:2rem">🎓</div>
+    <h2 id="emailTitle">Identification</h2>
+    <p class="note">Entre ton adresse email scolaire pour commencer.</p>
+    <input type="email" id="emailInput" placeholder="prenom.nom@eleve.istlm.be" autocomplete="email" onkeydown="if(event.key==='Enter')validateEmail()">
+    <div id="emailError" class="err"></div>
+    <button id="emailBtn" class="btn primary" style="width:100%" onclick="validateEmail()">✅ Vérifier et commencer</button>
+  </div>
+</div>
+
+<!-- ===== MODAL CLASSEMENT (tracking) ===== -->
+<div id="lbOverlay" class="overlay" hidden onclick="if(event.target===this)closeLB()">
+  <div class="modal lb" role="dialog" aria-modal="true" aria-labelledby="lbTitle">
+    <button class="lb-close" onclick="closeLB()" aria-label="Fermer">✕</button>
+    <h2 id="lbTitle">🏆 Classement</h2>
+    <div class="lb-tabs">
+      <button id="lbTabApp" onclick="switchLBTab('app')">🏆 Cette application</button>
+      <button id="lbTabGlobal" onclick="switchLBTab('global')">🌍 Classement général</button>
+    </div>
+    <div id="lbContent"><div style="text-align:center;padding:40px;color:var(--text2)">Chargement…</div></div>
+  </div>
+</div>
+
+<noscript><p style="padding:20px;text-align:center">Cette application a besoin de JavaScript.</p></noscript>
+
+<script>
+'use strict';
+/* ============================================================
+   TRACKING — Configuration
+   ============================================================ */
+const TRACKING = {
+  appName: "Le patrimoine — Partie 1",
+  totalNiveaux: 3,
+  sessionId: null,
+  scriptUrl: "https://script.google.com/macros/s/AKfycbx9bRMVuHU2mgFLii1KcQXD3LdZahnDH1rf1cWv9RuDvQAt0l3VtLtxzmbH7MtpJWRjfA/exec"
+};
+
+/* ============================================================
+   DONNÉES PÉDAGOGIQUES
+   ============================================================ */
+const TYPE_LABEL = { vf:'Vrai / Faux', qcm:'QCM', multi:'Sélection multiple', input:'Réponse à écrire', zones:'Classement', match:'Appariement', order:'Remise en ordre', hunt:'Chasse aux erreurs' };
+const DUR = { vf:20, qcm:40, multi:60, input:90, zones:90, match:60, order:60, hunt:120 };   // secondes (CONVENTIONS §3.9)
+
+const RANKS = [
+  { p:0,    icon:'🎒', name:'Apprenti' },
+  { p:0.20, icon:'🐷', name:'Épargnant' },
+  { p:0.45, icon:'🧮', name:'Comptable en herbe' },
+  { p:0.65, icon:'🔍', name:'Détective du patrimoine' },
+  { p:0.85, icon:'👑', name:'Expert du patrimoine' }
+];
+
+const CRITERES = [
+  { id:'C1', nom:"Comprendre ce qu'est mon patrimoine", indicateurs:[
+    { id:'I1', texte:"Je sais que mon patrimoine regroupe mes avoirs ET mes dettes, et j'emploie les mots du cours (patrimoine, capital, créance, prêt, emprunt).",
+      chapitre:"Le vocabulaire essentiel", revoir:"les définitions de patrimoine, capital, créance, prêt et emprunt, et l'astuce « P comme Posséder, E comme Endetté »." },
+    { id:'I2', texte:"Je classe un élément dans mes avoirs ou dans mes dettes.",
+      chapitre:"Avoirs et dettes : la base du patrimoine", revoir:"ce que tu possèdes (tes avoirs) et ce que tu dois (tes dettes) ; l'argent que quelqu'un te doit est un avoir." }
+  ]},
+  { id:'C2', nom:"Comprendre comment on finance un achat", indicateurs:[
+    { id:'I3', texte:"Je connais les façons de payer un achat quand il me manque de l'argent.",
+      chapitre:"Et si tu ne peux pas tout payer ?", revoir:"les trois options : économiser, demander un prêt à quelqu'un, acheter à crédit." },
+    { id:'I4', texte:"Je sais qu'emprunter crée une dette (je possède l'objet, mais je dois de l'argent) et j'en calcule le montant.",
+      chapitre:"Et si tu ne peux pas tout payer ?", revoir:"l'encadré « Attention » et l'exercice de Bilal : si tu empruntes, tu possèdes l'objet, mais tu as une dette." }
+  ]},
+  { id:'C3', nom:"Calculer et interpréter mon capital", indicateurs:[
+    { id:'I5', texte:"Je calcule un capital : avoirs − dettes.",
+      chapitre:"Avoirs et dettes : la base du patrimoine", revoir:"la formule Capital = Avoirs − Dettes et l'exemple résolu de Clara." },
+    { id:'I6', texte:"J'explique que le capital est la richesse réelle, et qu'il peut être négatif.",
+      chapitre:"Mène l'enquête ! Qui est le plus riche ?", revoir:"le retour à l'enquête (avoir beaucoup de choses ne veut pas dire être riche) et l'exercice de Tom (un capital peut être négatif)." }
+  ]}
+];
+
+const LEVELS = [
+/* ------------------------------------------------------------ MISSION 1 */
+{ id:'m1', icon:'🎒', title:"Ce que je possède, ce que je dois", desc:"Avoirs et dettes : les deux faces de ton patrimoine.", video:'sac',
+  goals:[ "dire ce que regroupe ton patrimoine : tes avoirs ET tes dettes ;", "classer un élément dans tes avoirs ou dans tes dettes." ],
+  rappel:`<p>Ton <b>patrimoine</b> se compose de deux éléments :</p>
+    <ul><li><span class="t-av">Ce que tu possèdes</span> = tes <b>avoirs</b> : de l'argent (sur un compte, en liquide…), des objets de valeur (smartphone, vélo, console…) et l'argent que quelqu'un te doit (une <b>créance</b>) ;</li>
+    <li><span class="t-de">Ce que tu dois</span> = tes <b>dettes</b> : l'argent que tu devras rendre à quelqu'un.</li></ul>`,
+  exemple:`Sam a 60&nbsp;€ sur son compte et une console. Son ami Alex lui doit 10&nbsp;€. Sam doit 25&nbsp;€ à sa sœur.<br>→ <span class="t-av">Avoirs</span> : les 60&nbsp;€, la console, les 10&nbsp;€ qu'Alex lui doit. → <span class="t-de">Dette</span> : les 25&nbsp;€ dus à sa sœur.`,
+  plus:`Un <b>objet de valeur</b>, c'est un objet que tu pourrais revendre si tu avais besoin d'argent. Sa valeur est une <b>estimation</b> : personne ne la connaît au centime près.`,
+  questions:[
+    { type:'vf', ind:'I1', pts:5,
+      prompt:"Léa a 500&nbsp;€ sur son compte. Elle doit encore 200&nbsp;€ à sa mère, qui lui a avancé de l'argent. Vrai ou faux ?",
+      statement:"« Le patrimoine de Léa, ce sont uniquement les 500&nbsp;€ qu'elle possède. »",
+      answer:false,
+      explain:"C'est faux : le patrimoine regroupe les avoirs ET les dettes. Celui de Léa comprend ses 500&nbsp;€ (un avoir) et les 200&nbsp;€ qu'elle doit à sa mère (une dette)." },
+    { type:'multi', ind:'I2', pts:10,
+      prompt:"Voici la situation de Yasmine. Coche <u>tout</u> ce qui fait partie de ses <span class=\"t-av\">avoirs</span>.",
+      options:[
+        { t:"180&nbsp;€ sur son livret d'épargne", ok:true },
+        { t:"Sa trottinette", ok:true },
+        { t:"Les 40&nbsp;€ qu'elle doit à sa mère", ok:false },
+        { t:"Les 30&nbsp;€ que sa grand-mère lui a avancés et qu'elle doit lui rendre", ok:false },
+        { t:"15&nbsp;€ en poche", ok:true },
+        { t:"Les 25&nbsp;€ que son cousin lui doit", ok:true } ],
+      hint:"Pour chaque ligne, demande-toi : est-ce que c'est à Yasmine… ou est-ce qu'elle doit cet argent à quelqu'un ? Il existe trois sortes d'avoirs.",
+      explain:"Les avoirs de Yasmine : son argent (livret d'épargne et poche), sa trottinette (un objet de valeur) et les 25&nbsp;€ que son cousin lui doit. Les 40&nbsp;€ dus à sa mère et les 30&nbsp;€ avancés par sa grand-mère sont des dettes : c'est Yasmine qui doit cet argent." },
+    { type:'qcm', ind:'I2', pts:10,
+      prompt:"Yanis a prêté 20&nbsp;€ à son ami Hugo, qui le remboursera la semaine prochaine. Pour Yanis, ces 20&nbsp;€, c'est…",
+      options:[ "un avoir : Hugo lui doit 20&nbsp;€, c'est une créance.", "une dette : l'argent n'est plus dans sa poche.", "ni un avoir ni une dette : il n'a plus cet argent.", "une dette envers Hugo." ], correct:0,
+      hint:"Qui doit de l'argent à qui ? Est-ce Yanis qui devra rendre ces 20&nbsp;€, ou Hugo ?",
+      explain:"Yanis a prêté de l'argent : Hugo lui doit 20&nbsp;€. Un prêt crée une créance, donc un avoir pour Yanis. Astuce du cours : P comme Posséder (prêt = avoir), E comme Endetté (emprunt = dette)." },
+    { type:'zones', ind:'I2', pts:14, badge:'sorter',
+      prompt:"Range chaque élément du patrimoine de Malik dans la bonne colonne.",
+      zones:[ { id:'av', label:'Avoirs', sub:'ce que Malik possède', cls:'av' }, { id:'de', label:'Dettes', sub:'ce que Malik doit', cls:'de' } ],
+      items:[
+        { t:"Console de jeux : 250&nbsp;€", z:'av' },
+        { t:"Avance de son père pour le voyage scolaire : 90&nbsp;€", z:'de' },
+        { t:"Reste à payer pour son téléphone acheté à crédit : 110&nbsp;€", z:'de' },
+        { t:"Prêt à sa sœur : 15&nbsp;€", z:'av' },
+        { t:"Emprunt à son oncle pour un casque audio : 80&nbsp;€", z:'de' },
+        { t:"Avance à son ami Noé : 20&nbsp;€", z:'av' },
+        { t:"Vélo : 300&nbsp;€", z:'av' } ],
+      hint:"Pour chaque étiquette revenue : Malik possède-t-il quelque chose… ou doit-il de l'argent ? Attention aux petits mots : une avance À quelqu'un n'est pas une avance DE quelqu'un.",
+      explain:"Avoirs : la console, le vélo, le prêt à sa sœur et l'avance à Noé (on lui doit cet argent). Dettes : l'avance de son père, l'emprunt à son oncle et le reste à payer du téléphone acheté à crédit." }
+  ]},
+/* ------------------------------------------------------------ MISSION 2 */
+{ id:'m2', icon:'💸', title:"Je veux l'acheter… mais comment le payer ?", desc:"Économiser ou se faire aider… et la dette dans tout ça ?", video:'portes',
+  goals:[ "les façons de payer un achat quand il te manque de l'argent ;", "reconnaître quand un achat crée une dette, et calculer son montant." ],
+  rappel:`<p>Pour acheter quelque chose, il faut des <b>fonds</b>, c'est-à-dire de l'argent. Soit tu l'as déjà : ce sont tes <b>économies</b>. Soit quelqu'un t'aide à financer ton achat. Si l'argent te manque, tu as trois options :</p>
+    <ol><li><b>Économiser</b> jusqu'à avoir la somme nécessaire ;</li><li><b>Demander un prêt à quelqu'un</b> : tes parents, des amis… ou une banque ;</li><li><b>Acheter à crédit</b> : payer plus tard.</li></ol>
+    <p>⚠️ Si tu empruntes, tu crées une <span class="t-de">dette</span> : tu possèdes l'objet, mais tu dois de l'argent à quelqu'un.</p>`,
+  exemple:`Jade veut un skate à 120&nbsp;€. Elle a 50&nbsp;€ dans sa tirelire : il lui manque 70&nbsp;€. Si ses parents lui avancent les 70&nbsp;€, Jade possède le skate… et elle a une <span class="t-de">dette de 70&nbsp;€</span> envers ses parents.`,
+  plus:`Une entreprise se pose la même question : <b>d'où vient l'argent ?</b> Il peut venir de ses propriétaires ou de tiers (banque, fournisseurs…). Tu le découvriras dans la partie 2 du cours : « Le patrimoine de l'entreprise ».`,
+  questions:[
+    { type:'qcm', ind:'I3', pts:10,
+      prompt:"Ilyes veut acheter un casque audio à 90&nbsp;€. Il n'a que 30&nbsp;€. Il ne veut avoir de dette envers personne. Que peut-il faire ?",
+      options:[ "Mettre de l'argent de côté chaque semaine et acheter le casque quand il aura 90&nbsp;€.", "Demander à ses parents de lui avancer les 60&nbsp;€ qui manquent.", "Acheter le casque à crédit et le payer plus tard.", "Emprunter 60&nbsp;€ à son meilleur ami." ], correct:0,
+      hint:"Parmi ces solutions, laquelle lui permet de payer uniquement avec son propre argent ?",
+      explain:"En économisant, Ilyes paiera avec ses propres fonds : il n'aura aucune dette. Une avance de ses parents, un emprunt à un ami ou un achat à crédit créent tous une dette." },
+    { type:'zones', ind:'I4', pts:14,
+      prompt:"Pour chaque achat, décide : l'acheteur se retrouve-t-il avec une dette ?",
+      zones:[ { id:'oui', label:'Crée une dette', sub:"l'acheteur doit de l'argent", cls:'de' }, { id:'non', label:'Ne crée pas de dette', sub:"l'acheteur paie avec son argent", cls:'ok' } ],
+      items:[
+        { t:"Chloé paie son vélo avec l'argent de son livret d'épargne.", z:'non' },
+        { t:"Enzo achète un téléphone et le paiera en 10 mois au magasin.", z:'oui' },
+        { t:"Sofia met 10&nbsp;€ de côté chaque semaine, puis achète ses écouteurs.", z:'non' },
+        { t:"Le grand-père d'Adam lui avance le prix de son scooter.", z:'oui' },
+        { t:"Lina emprunte 50&nbsp;€ à une amie pour une place de concert.", z:'oui' },
+        { t:"La banque prête 8&nbsp;000&nbsp;€ à Sarah pour acheter une voiture.", z:'oui' },
+        { t:"Nathan achète un jeu avec l'argent de sa tirelire.", z:'non' } ],
+      hint:"Pour chaque achat restant : l'argent vient-il de l'acheteur lui-même… ou de quelqu'un qu'il faudra rembourser ?",
+      explain:"Pas de dette quand on paie avec ses propres économies (Chloé, Sofia, Nathan). Une dette dès qu'on emprunte : l'avance du grand-père (Adam), l'emprunt à une amie (Lina), le prêt de la banque (Sarah) ou l'achat à crédit (Enzo)." },
+    { type:'input', ind:'I4', pts:12, answer:250, unit:'€',
+      prompt:"Inaya achète une trottinette électrique. Elle paie une partie avec ses économies, et sa marraine lui avance le reste. Quel est le montant de la <span class=\"t-de\">dette</span> d'Inaya ?",
+      data:"Prix de la trottinette : <b>380&nbsp;€</b><br>Payé avec ses économies : <b>130&nbsp;€</b>",
+      hint:"Le prix total est de 380&nbsp;€. Quelle partie Inaya a-t-elle déjà payée elle-même ? Qui paie le reste ?",
+      explain:"380 − 130 = 250&nbsp;€. Inaya doit 250&nbsp;€ à sa marraine : elle possède la trottinette (un avoir) ET elle a une dette de 250&nbsp;€." },
+    { type:'vf', ind:'I4', pts:5,
+      prompt:"Bilal achète une guitare électrique à 450&nbsp;€. Il paie 150&nbsp;€ avec ses économies, et son grand-père lui avance les 300&nbsp;€ qui manquent. Vrai ou faux ?",
+      statement:"« La guitare appartient à Bilal, et il a aussi une dette de 300&nbsp;€ envers son grand-père. »",
+      answer:true,
+      explain:"C'est vrai : Bilal possède la guitare, elle est à lui, même s'il n'a pas encore remboursé. Mais il a aussi une dette de 300&nbsp;€ envers son grand-père. Emprunter, c'est posséder l'objet ET devoir de l'argent." },
+    { type:'order', ind:'I3', pts:10,
+      prompt:"Remets dans l'ordre l'histoire de l'achat de Théo. Attention : deux étiquettes ne correspondent pas à l'histoire.",
+      steps:[ "Théo veut acheter un vélo à 400&nbsp;€.", "Il n'a que 150&nbsp;€ d'économies : il lui manque 250&nbsp;€.", "Ses parents acceptent de lui prêter les 250&nbsp;€ qui manquent.", "Théo achète le vélo : il le possède et il doit 250&nbsp;€ à ses parents.", "Théo rembourse ses parents petit à petit : sa dette diminue." ],
+      extra:[ "Théo achète le vélo : il le possède et ne doit rien à personne.", "Théo prête 250&nbsp;€ à ses parents." ],
+      hint:"Commence par ce que Théo veut, puis ce qui lui manque. Et après l'achat : a-t-il une dette, oui ou non ? Qui prête à qui ?",
+      explain:"Théo veut le vélo, il lui manque 250&nbsp;€, ses parents lui prêtent cette somme, il achète le vélo (il le possède ET il a une dette de 250&nbsp;€), puis il rembourse. Les deux intrus sont faux : après un emprunt, Théo a une dette, et ce sont ses parents qui lui prêtent de l'argent, pas l'inverse." }
+  ]},
+/* ------------------------------------------------------------ MISSION 3 */
+{ id:'m3', icon:'🧮', title:"Ce qui est vraiment à moi : le capital", desc:"Calcule ce qui t'appartient vraiment… et boucle l'enquête !", video:'balance',
+  goals:[ "calculer un capital : avoirs − dettes ;", "expliquer ce que montre le capital… et dire enfin qui est le plus riche, Noah ou Inès ;", "employer les mots du cours : patrimoine, capital, créance, prêt, emprunt." ],
+  rappel:`<p>Tu connais tes <span class="t-av">avoirs</span> (ce que tu possèdes) et tes <span class="t-de">dettes</span> (ce que tu dois). Ce qui t'appartient <b>vraiment</b>, une fois toutes tes dettes remboursées, c'est ton <span class="t-cap">capital</span> : ta <b>richesse réelle</b>.</p>
+    <div class="formula"><span class="f-cap">Capital</span>=<span class="f-av">Avoirs</span>−<span class="f-de">Dettes</span></div>`,
+  exemple:`Max possède un vélo (400&nbsp;€), 150&nbsp;€ sur son livret et 50&nbsp;€ en poche : ses <span class="t-av">avoirs</span> valent 600&nbsp;€. Il doit 150&nbsp;€ à son oncle : ses <span class="t-de">dettes</span> valent 150&nbsp;€.<br>Capital de Max = 600 − 150 = <span class="t-cap">450&nbsp;€</span>.`,
+  plus:`Une entreprise a, elle aussi, un patrimoine ! Ce qu'elle possède s'appelle l'<b>actif</b>, et son capital se calcule selon le même principe : actif − dettes. C'est la suite du cours : « Le patrimoine de l'entreprise ».`,
+  questions:[
+    { type:'input', ind:'I5', pts:12, answer:1050, unit:'€',
+      prompt:"Calcule le <span class=\"t-cap\">capital</span> d'Elias.",
+      data:"Avoirs d'Elias : <b>1&nbsp;400&nbsp;€</b><br>Dettes d'Elias : <b>350&nbsp;€</b>",
+      hint:"Le capital, c'est ce qui reste à Elias une fois toutes ses dettes remboursées. Quelle opération fais-tu entre ses avoirs et ses dettes ?",
+      explain:"Capital = Avoirs − Dettes = 1&nbsp;400 − 350 = 1&nbsp;050&nbsp;€. C'est ce qui appartient vraiment à Elias." },
+    { type:'match', ind:'I1', pts:10,
+      prompt:"Associe chaque mot du cours à sa définition. Attention : deux définitions sont en trop.",
+      pairs:[
+        { term:"Patrimoine", def:"Ensemble des avoirs et des dettes d'une personne à un moment donné." },
+        { term:"Capital", def:"Différence entre les avoirs et les dettes : la richesse nette." },
+        { term:"Créance", def:"Somme d'argent que quelqu'un te doit." },
+        { term:"Prêt", def:"Action de mettre de l'argent à la disposition de quelqu'un, qui devra le rendre." },
+        { term:"Emprunt", def:"Action d'obtenir de l'argent qu'on devra rendre." } ],
+      extra:[ "Tout ce que tu possèdes : ton argent, tes objets de valeur…", "Somme d'argent que tu dois à quelqu'un." ],
+      hint:"Pour chaque mot restant, demande-toi : parle-t-il de ce qu'on possède, de ce qu'on doit… ou des deux à la fois ?",
+      explain:"Patrimoine = avoirs ET dettes ; capital = avoirs − dettes ; créance = argent que quelqu'un te doit ; prêt = tu mets de l'argent à disposition (tu as une créance, donc un avoir) ; emprunt = tu obtiens de l'argent à rendre (une dette). Les deux définitions en trop décrivent les avoirs et les dettes." },
+    { type:'qcm', ind:'I6', pts:10,
+      prompt:"Kylian a fait le point sur son patrimoine. Que peux-tu dire de son capital ?",
+      data:"Avoirs de Kylian : <b>300&nbsp;€</b><br>Dettes de Kylian : <b>450&nbsp;€</b>",
+      options:[ "Il est négatif (−150&nbsp;€) : Kylian doit plus qu'il ne possède.", "Il vaut 750&nbsp;€ : on additionne les avoirs et les dettes.", "Il vaut 150&nbsp;€ : un capital est toujours positif.", "Il vaut 300&nbsp;€ : on ne compte que ce qu'il possède." ], correct:0,
+      hint:"Fais le calcul avoirs − dettes. Les dettes sont plus grandes que les avoirs : que se passe-t-il ?",
+      explain:"300 − 450 = −150&nbsp;€. Le capital de Kylian est négatif : il doit plus qu'il ne possède (comme Tom dans ton cours)." },
+    { type:'hunt', ind:'I1', pts:12, badge:'detective',
+      prompt:"Le carnet de révision de Max contient des erreurs. Clique sur les phrases fausses. Attention : une fausse alerte coûte 1 XP.",
+      title:"Carnet de Max — Mon patrimoine",
+      lines:[
+        { t:"Mon patrimoine, c'est l'ensemble de mes avoirs et de mes dettes.", err:false },
+        { t:"Si je prête 30&nbsp;€ à un ami, c'est une dette pour moi.", err:true, fix:"C'est un avoir (une créance) : mon ami me doit 30&nbsp;€." },
+        { t:"Quand j'emprunte de l'argent, je crée une dette.", err:false },
+        { t:"Pour trouver mon capital, je calcule : avoirs + dettes.", err:true, fix:"Capital = avoirs − dettes." },
+        { t:"Mon capital, c'est ce qui m'appartient vraiment une fois toutes mes dettes remboursées.", err:false },
+        { t:"Le capital est toujours positif.", err:true, fix:"Il peut être négatif si je dois plus que je ne possède." },
+        { t:"Une créance, c'est de l'argent que quelqu'un me doit.", err:false } ],
+      hint:"Relis chaque phrase en te demandant : qui doit de l'argent à qui ? Quelle opération donne le capital ? Le capital peut-il descendre sous zéro ?",
+      explain:"Les trois erreurs de Max : un prêt accordé est un avoir (une créance), pas une dette ; le capital se calcule avec une soustraction (avoirs − dettes) ; et le capital peut être négatif." },
+    { type:'input', ind:'I5', pts:12, answer:1550, unit:'€', badge:'capital',
+      prompt:"🕵️ Retour à l'enquête ! Calcule le <span class=\"t-cap\">capital</span> de Noah.",
+      data:"<b>Noah, 19 ans</b><br>Voiture : <b>14&nbsp;000&nbsp;€</b> · Smartphone : <b>1&nbsp;100&nbsp;€</b> · Sur son compte : <b>250&nbsp;€</b><br>Il doit encore <b>13&nbsp;200&nbsp;€</b> à la banque (emprunt pour la voiture) et <b>600&nbsp;€</b> à son frère.",
+      hint:"Additionne d'abord tout ce que Noah possède (ses avoirs), puis tout ce qu'il doit (ses dettes). Ensuite : avoirs − dettes.",
+      explain:"Avoirs = 14&nbsp;000 + 1&nbsp;100 + 250 = 15&nbsp;350&nbsp;€. Dettes = 13&nbsp;200 + 600 = 13&nbsp;800&nbsp;€. Capital = 15&nbsp;350 − 13&nbsp;800 = 1&nbsp;550&nbsp;€." },
+    { type:'qcm', ind:'I6', pts:10, verdict:true,
+      prompt:"🕵️ Le verdict ! Le capital de Noah est de 1&nbsp;550&nbsp;€. Voici la situation d'Inès. Qui est le plus riche ?",
+      data:"<b>Inès, 19 ans</b><br>Vélo : <b>450&nbsp;€</b> · Ordinateur portable : <b>650&nbsp;€</b> · Livret d'épargne : <b>2&nbsp;300&nbsp;€</b><br>Elle a prêté <b>100&nbsp;€</b> à une amie. Elle ne doit rien à personne.",
+      options:[ "Inès, avec un capital de 3&nbsp;500&nbsp;€.", "Noah, car il possède beaucoup plus de choses qu'Inès.", "Inès, avec un capital de 3&nbsp;400&nbsp;€.", "Noah, avec un capital de 15&nbsp;350&nbsp;€." ], correct:0,
+      hint:"Calcule le capital d'Inès : avoirs − dettes. N'oublie aucun de ses avoirs. Et demande-toi ce qui compte : ce qu'on possède, ou ce qui reste une fois les dettes remboursées ?",
+      explain:"Avoirs d'Inès = 450 + 650 + 2&nbsp;300 + 100 = 3&nbsp;500&nbsp;€ (le prêt à son amie est un avoir). Dettes = 0&nbsp;€. Capital = 3&nbsp;500&nbsp;€. Noah possède plus de choses (15&nbsp;350&nbsp;€), mais il doit presque tout : son capital n'est que de 1&nbsp;550&nbsp;€. Inès est la plus riche !" }
+  ]}
+];
+
+const BADGES = [
+  { id:'first',     icon:'🚀', name:'Premier pas',     cond:"Terminer la mission 1" },
+  { id:'sorter',    icon:'⚖️', name:"Trieur d'élite",  cond:"Classer les 7 éléments du patrimoine de Malik du premier coup" },
+  { id:'streak5',   icon:'🔥', name:'En feu',          cond:"Réussir 5 questions d'affilée du premier coup" },
+  { id:'predict',   icon:'🎯', name:'Lucide',          cond:"Prédire juste ton score sur une mission" },
+  { id:'perfect',   icon:'💯', name:'Sans faute',      cond:"Réussir toute une mission du premier coup" },
+  { id:'detective', icon:'🕵️', name:'Fin limier',      cond:"Trouver les 3 erreurs du carnet de Max du premier coup, sans fausse alerte" },
+  { id:'capital',   icon:'🧮', name:'As du capital',   cond:"Calculer le capital de Noah du premier coup" },
+  { id:'finish',    icon:'🏁', name:'Enquête bouclée', cond:"Terminer les 3 missions" }
+];
+
+const PRED = { half:'Environ la moitié 😅', three:'Les trois quarts 💪', all:'Toutes ! 🏆' };
+
+/* ---------- Totaux dérivés (CONVENTIONS §1.4) ---------- */
+LEVELS.forEach(lv => { lv.maxPoints = lv.questions.reduce((s,q) => s + q.pts, 0); });
+const TOTAL_XP = LEVELS.reduce((s,lv) => s + lv.maxPoints, 0);
+const TOTAL_Q  = LEVELS.reduce((s,lv) => s + lv.questions.length, 0);
+const EST_SEC  = 45 + LEVELS.reduce((s,lv) => s + 60 + (lv.video ? 30 : 0) + lv.questions.reduce((a,q) => a + DUR[q.type], 0), 0);
+const EST_MIN  = Math.round(EST_SEC / 60 / 5) * 5;
+
+/* ---------- Rotation déterministe des QCM (CONVENTIONS §3.7) ---------- */
+const DECALAGE = [2,0,3,1, 1,3,0,2, 3,1,2,0, 0,2,1,3, 2,3,0,1];
+(function melangerPropositions(liste){
+  let k = 0;
+  liste.forEach(q => {
+    if (q.type !== 'qcm') return;
+    const t = DECALAGE[k++ % DECALAGE.length];
+    for (let n = 0; n < t; n++) { q.options.unshift(q.options.pop()); q.correct = (q.correct + 1) % q.options.length; }
+  });
+})(LEVELS.flatMap(lv => lv.questions));
+
+/* ============================================================
+   ILLUSTRATIONS SVG
+   ============================================================ */
+const AV = {
+  sam:  { skin:'#f1c7a1', hair:'#3b2a20', shirt:'#4f8ef7', style:'short' },
+  jade: { skin:'#c98e62', hair:'#1f1a17', shirt:'#ff8a3d', style:'bun' },
+  max:  { skin:'#f4d2b0', hair:'#c98f2e', shirt:'#22b07a', style:'short' },
+  noah: { skin:'#e9b48a', hair:'#5a3a22', shirt:'#3a6fd8', style:'short' },
+  ines: { skin:'#b87a52', hair:'#2a1b14', shirt:'#d9478a', style:'long' }
+};
+function avatar(k){
+  const o = AV[k];
+  const back = o.style === 'long' ? `<path d="M22 44 Q19 98 34 102 L66 102 Q81 98 78 44 Z" fill="${o.hair}"/>` : '';
+  const bun  = o.style === 'bun'  ? `<circle cx="50" cy="14" r="11" fill="${o.hair}"/>` : '';
+  return `<svg class="avatar" viewBox="0 0 100 124" aria-hidden="true"><ellipse cx="50" cy="120" rx="30" ry="4" fill="rgba(0,0,0,.3)"/>${back}<path d="M16 120 Q16 80 50 80 Q84 80 84 120 Z" fill="${o.shirt}"/><path d="M41 81 L50 92 L59 81" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="3" stroke-linejoin="round"/><rect x="43" y="66" width="14" height="16" rx="5" fill="${o.skin}"/>${bun}<circle cx="50" cy="44" r="25" fill="${o.skin}"/><path d="M25 45 Q23 17 50 17 Q77 17 75 45 Q72 31 59 28 Q46 34 31 32 Q27 38 25 45 Z" fill="${o.hair}"/><circle cx="41" cy="47" r="3.2" fill="#1d1d2b"/><circle cx="59" cy="47" r="3.2" fill="#1d1d2b"/><circle cx="42.2" cy="45.8" r="1" fill="#fff"/><circle cx="60.2" cy="45.8" r="1" fill="#fff"/><circle cx="34" cy="55" r="4" fill="#ff8fa3" opacity=".45"/><circle cx="66" cy="55" r="4" fill="#ff8fa3" opacity=".45"/><path d="M42 57 Q50 64 58 57" stroke="#1d1d2b" stroke-width="2.8" fill="none" stroke-linecap="round"/></svg>`;
+}
+
+/* ============================================================
+   MINI-VIDÉOS (animations SVG/CSS pilotées par scènes)
+   ============================================================ */
+const VIDEOS = {
+  sac: { title:"Le sac à dos de Sam",
+    scenes:[
+      { d:4300, cap:"Voici Sam, 15 ans. Faisons l'inventaire de son patrimoine !" },
+      { d:4800, cap:"💶 Sam a 60&nbsp;€ sur son compte. C'est à lui : c'est un <b class='t-av'>avoir</b>." },
+      { d:4800, cap:"🎮 Sa console vaut environ 200&nbsp;€ : un objet de valeur, donc un <b class='t-av'>avoir</b>." },
+      { d:5300, cap:"🤝 Son ami Alex lui doit 10&nbsp;€. L'argent que quelqu'un te doit, c'est aussi un <b class='t-av'>avoir</b> !" },
+      { d:5000, cap:"🧾 Mais Sam doit 25&nbsp;€ à sa sœur. Ce qu'il doit, c'est une <b class='t-de'>dette</b>." },
+      { d:5000, cap:"Le <b>patrimoine</b> de Sam, c'est l'ensemble de ses <b class='t-av'>avoirs</b> ET de ses <b class='t-de'>dettes</b>." } ],
+    stage:() => `<div class="el sam">${avatar('sam')}<div class="name">Sam</div></div>
+      <div class="el vbox bav"><div class="bh">AVOIRS</div><div class="bs">ce que Sam possède</div></div>
+      <div class="el vbox bde"><div class="bh">DETTES</div><div class="bs">ce que Sam doit</div></div>
+      <div class="el it it1"><span>💶</span>60&nbsp;€ sur son compte</div>
+      <div class="el it it2"><span>🎮</span>Console : 200&nbsp;€</div>
+      <div class="el it it3"><span>🤝</span>Alex lui doit 10&nbsp;€</div>
+      <div class="el it it4"><span>🧾</span>Doit 25&nbsp;€ à sa sœur</div>
+      <div class="el brace"><span>PATRIMOINE</span></div>` },
+  portes: { title:"Les 3 portes de Jade",
+    scenes:[
+      { d:5000, cap:"Jade veut un skate à 120&nbsp;€. Dans sa tirelire : 50&nbsp;€. Il lui manque 70&nbsp;€." },
+      { d:5600, cap:"Pour acheter, il faut des fonds. Soit on les a déjà (ses économies), soit quelqu'un nous aide à financer. Jade a 3 possibilités…" },
+      { d:5000, cap:"1️⃣ <b>Économiser</b> jusqu'à avoir la somme : il faut patienter, mais Jade ne devra rien à personne." },
+      { d:5000, cap:"2️⃣ <b>Demander un prêt</b> à quelqu'un : ses parents, des amis… ou une banque. ⚠️ Jade aura une <b class='t-de'>dette</b>." },
+      { d:4600, cap:"3️⃣ <b>Acheter à crédit</b> : payer plus tard. ⚠️ Là aussi, c'est une <b class='t-de'>dette</b>." },
+      { d:5000, cap:"Si Jade emprunte : elle <b class='t-av'>possède</b> le skate… mais elle <b class='t-de'>doit</b> 70&nbsp;€ à quelqu'un." } ],
+    stage:() => `<div class="el jade">${avatar('jade')}<div class="name">Jade</div></div>
+      <div class="el want"><span class="big">🛹</span><span class="price">120&nbsp;€</span></div>
+      <div class="el piggy"><span class="big">🐷</span><span class="price">50&nbsp;€</span></div>
+      <div class="el miss">il manque 70&nbsp;€</div>
+      <div class="el door d1"><div class="dback"><span class="ic">🐷</span><b>Économiser</b><small>jusqu'à avoir la somme</small><em class="tag ok">pas de dette</em></div><div class="dfront">1</div></div>
+      <div class="el door d2"><div class="dback"><span class="ic">👨‍👩‍👧🏦</span><b>Demander un prêt</b><small>parents, amis… banque</small><em class="tag bad">dette</em></div><div class="dfront">2</div></div>
+      <div class="el door d3"><div class="dback"><span class="ic">💳</span><b>Acheter à crédit</b><small>payer plus tard</small><em class="tag bad">dette</em></div><div class="dfront">3</div></div>
+      <div class="el final"><div>🛹 Jade <span class="t-av">possède</span> le skate…</div><div>🧾 …et elle <span class="t-de">doit 70&nbsp;€</span> à quelqu'un.</div></div>` },
+  balance: { title:"La balance du capital",
+    scenes:[
+      { d:4800, cap:"Voici Max. Il possède un vélo (400&nbsp;€), 150&nbsp;€ sur son livret et 50&nbsp;€ en poche." },
+      { d:4600, cap:"Ses <b class='t-av'>avoirs</b> : 400 + 150 + 50 = 600&nbsp;€." },
+      { d:4600, cap:"Mais Max doit 150&nbsp;€ à son oncle : c'est sa <b class='t-de'>dette</b>." },
+      { d:4300, cap:"Imaginons qu'il rembourse toute sa dette…" },
+      { d:5000, cap:"…il lui reste 450&nbsp;€ : c'est son <b class='t-cap'>capital</b>, ce qui est vraiment à lui." },
+      { d:5200, cap:"<b class='t-cap'>Capital</b> = <b class='t-av'>Avoirs</b> − <b class='t-de'>Dettes</b>. C'est la richesse réelle de Max." } ],
+    stage:() => `<div class="el max">${avatar('max')}<div class="name">Max</div></div>
+      <div class="el goods"><div>🚲 Vélo : 400&nbsp;€</div><div>💶 Livret : 150&nbsp;€</div><div>🪙 Poche : 50&nbsp;€</div></div>
+      <div class="el bar bav">avoirs : 600&nbsp;€</div>
+      <div class="el uncle">🧾 doit 150&nbsp;€ à son oncle</div>
+      <div class="el bar bde">150&nbsp;€</div>
+      <div class="el bar bcap">capital : 450&nbsp;€</div>
+      <div class="el lbl lbl-de">dettes</div>
+      <div class="el lbl lbl-cap">ce qui est vraiment à Max</div>
+      <div class="el formula-v"><span class="t-cap">Capital</span> = <span class="t-av">Avoirs</span> − <span class="t-de">Dettes</span> = 600 − 150 = <span class="t-cap">450&nbsp;€</span></div>` }
+};
+
+/* ============================================================
+   ÉTAT DE L'APPLICATION (machine à états unique, CONVENTIONS §1.3)
+   ============================================================ */
+function lsGet(k){ try { return localStorage.getItem(k) || ''; } catch(e){ return ''; } }
+function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+
+const APP = {
+  screen:'welcome', level:0, q:0, qs:{}, score:0, streak:0, bestStreak:0,
+  completed:new Set(), pred:{}, vote:null, badges:new Set(), rankIdx:0, sound:false,
+  fx:[], fxBusy:false, shake:false, celebrated:new Set(), finalCelebrated:false,
+  vid:{ id:null, scene:0, playing:false, t:null },
+  lastPt:{ x:0, y:0 },
+  // tracking
+  email: lsGet('student_email'), classe: lsGet('student_classe'),
+  levelStart:{}, exerciseTimes:{}, exerciseScores:{},
+  globalTimerStart:null, globalTimerInterval:null
+};
+
+/* ---------- utilitaires ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const fmt = n => (Math.round(n * 100) / 100).toLocaleString('fr-BE');
+const key = (l,q) => l + '_' + q;
+
+function shuffled(n, seed){
+  const a = [...Array(n).keys()]; let s = seed;
+  for (let i = n - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor(s / 233280 * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function evalExpr(s){
+  let e = String(s).replace(/\s| | |€/g,'').replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/,/g,'.');
+  if (!/^[0-9+\-*/().]+$/.test(e) || !/[+\-*/]/.test(e.slice(1))) return null;
+  try { const r = Function('"use strict";return (' + e + ')')(); return (typeof r === 'number' && isFinite(r)) ? r : null; }
+  catch (err) { return null; }
+}
+function parseNum(s){
+  const r = evalExpr(s); if (r !== null) return r;
+  let t = String(s).replace(/\s| | |€/g,'').replace(/−/g,'-');
+  if (t.includes(',')) t = t.replace(/\./g,'').replace(',', '.');
+  else if ((t.match(/\./g) || []).length > 1 || /^-?\d{1,3}\.\d{3}$/.test(t)) t = t.replace(/\./g,'');
+  return parseFloat(t);
+}
+function getS(l,q){
+  return APP.qs[key(l,q)] || (APP.qs[key(l,q)] = { tries:0, done:false, status:null, earned:0, sel:null, wrong:[], multi:[], val:'', place:{}, lock:{}, slots:null, marks:[], fa:0, pick:null, bounce:[], order:null, fb:'' });
+}
+const curQ = () => LEVELS[APP.level].questions[APP.q];
+const curS = () => getS(APP.level, APP.q);
+const isUnlocked = l => l === 0 || APP.completed.has(l - 1);
+const allDone = () => APP.completed.size === LEVELS.length;
+function levelEarned(l){ return LEVELS[l].questions.reduce((s,_,i) => s + ((APP.qs[key(l,i)] || {}).earned || 0), 0); }
+function levelCounts(l){
+  const c = { correct:0, hint:0, shown:0, n:LEVELS[l].questions.length };
+  LEVELS[l].questions.forEach((_,i) => { const s = APP.qs[key(l,i)]; if (s && s.done) c[s.status]++; });
+  return c;
+}
+function computeScore(){ return Object.values(APP.qs).reduce((s,st) => s + (st.earned || 0), 0); }
+function gradeOf(p){ return p >= .85 ? { l:'A', t:'Excellent' } : p >= .65 ? { l:'B', t:'Très bien' } : p >= .45 ? { l:'C', t:'Satisfaisant' } : { l:'D', t:'À retravailler' }; }
+function starsOf(r){ const n = r >= .85 ? 3 : r >= .65 ? 2 : r >= .45 ? 1 : 0; return '★'.repeat(n) + '☆'.repeat(3 - n); }
+function medalOf(p){ return p >= .9 ? '🏆' : p >= .7 ? '🥇' : p >= .5 ? '🥈' : '🥉'; }
+
+/* ============================================================
+   NAVIGATION ET RENDU
+   ============================================================ */
+function setScreen(name){
+  stopVideo();
+  APP.screen = name;
+  if (name === 'brief') { APP.vid = { id:LEVELS[APP.level].video, scene:0, playing:false, t:null }; startLevelTimer(APP.level); }
+  renderScreen();
+  try { window.scrollTo({ top:0, behavior:'smooth' }); } catch(e) {}
+}
+function renderScreen(){
+  const m = $('main');
+  switch (APP.screen) {
+    case 'welcome':  m.innerHTML = renderWelcome(); break;
+    case 'hub':      m.innerHTML = renderHub(); break;
+    case 'brief':    m.innerHTML = renderBrief(APP.level); break;
+    case 'question': m.innerHTML = renderQuestion(APP.level, APP.q); break;
+    case 'bilan':    m.innerHTML = renderBilan(APP.level); break;
+  }
+  updateHUD();
+  afterRender();
+}
+function rerender(){
+  const act = document.activeElement && document.activeElement.id;
+  renderScreen();
+  if (act) { const e = $(act); if (e && !e.disabled) { try { e.focus({ preventScroll:true }); } catch(err) {} } }
+  if (APP.shake) { APP.shake = false; const c = $('qcard'); if (c) { c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); } }
+}
+function afterRender(){
+  if (APP.screen === 'bilan') {
+    const l = APP.level, c = levelCounts(l);
+    if (!APP.celebrated.has(l) && c.correct / c.n >= .7) { APP.celebrated.add(l); setTimeout(() => confetti(90), 250); }
+  }
+  if (APP.screen === 'hub' && allDone() && !APP.finalCelebrated) {
+    APP.finalCelebrated = true;
+    const t = globalCounts(); if (t.correct / t.n >= .7) setTimeout(() => confetti(140), 300);
+  }
+}
+function goHub(){ if (!$('emailOverlay').hidden) return; setScreen('hub'); }
+function goLevel(l){
+  if (!isUnlocked(l)) return;
+  APP.level = l;
+  if (APP.completed.has(l)) { setScreen('bilan'); return; }
+  const first = LEVELS[l].questions.findIndex((_,i) => !(APP.qs[key(l,i)] || {}).done);
+  if (first > 0) { APP.q = first; setScreen('question'); }
+  else { APP.q = 0; setScreen('brief'); }
+}
+function startMission(){ if (!APP.pred[APP.level]) return; APP.q = 0; setScreen('question'); }
+function nextQ(){
+  const n = LEVELS[APP.level].questions.length;
+  if (APP.q < n - 1) { APP.q++; setScreen('question'); } else setScreen('bilan');
+}
+function nextLevel(){ if (APP.level < LEVELS.length - 1 && isUnlocked(APP.level + 1)) goLevel(APP.level + 1); else setScreen('hub'); }
+
+/* ---------- HUD ---------- */
+function renderXpMarks(){
+  const tr = $('xpTrack');
+  tr.querySelectorAll('.mark').forEach(m => m.remove());
+  RANKS.slice(1).forEach((r,i) => {
+    const d = document.createElement('div');
+    d.className = 'mark'; d.id = 'mk' + (i + 1); d.style.left = (r.p * 100) + '%';
+    d.title = r.name + ' — ' + Math.ceil(r.p * TOTAL_XP) + ' XP';
+    d.innerHTML = '<span>' + r.icon + '</span>';
+    tr.appendChild(d);
+  });
+}
+function updateHUD(){
+  $('hudXp').textContent = '⭐ ' + fmt(APP.score) + ' XP';
+  const s = $('hudStreak'); s.textContent = '🔥 ' + APP.streak; s.classList.toggle('hot', APP.streak >= 3);
+  const inLevel = ['brief','question','bilan'].includes(APP.screen);
+  $('navPills').innerHTML = LEVELS.map((lv,l) => {
+    const done = APP.completed.has(l), un = isUnlocked(l), cur = inLevel && APP.level === l;
+    return `<button class="npill ${done ? 'done' : ''} ${cur ? 'cur' : ''} ${un ? '' : 'locked'}" ${un ? '' : 'disabled'} onclick="goLevel(${l})" aria-label="Mission ${l + 1}${done ? ' (terminée)' : un ? '' : ' (verrouillée)'}">${done ? '✓' : un ? l + 1 : '🔒'}</button>`;
+  }).join('');
+  const r = RANKS[APP.rankIdx];
+  $('rankLbl').textContent = r.icon + ' ' + r.name;
+  $('xpFill').style.width = Math.min(100, 100 * APP.score / TOTAL_XP) + '%';
+  RANKS.slice(1).forEach((rk,i) => { const m = $('mk' + (i + 1)); if (m) m.classList.toggle('reached', APP.score >= Math.ceil(rk.p * TOTAL_XP)); });
+  const nx = RANKS[APP.rankIdx + 1];
+  $('nextLbl').innerHTML = nx ? `prochain rang : ${nx.icon} à <b>${Math.ceil(nx.p * TOTAL_XP)} XP</b>` : 'rang maximal atteint 👑';
+}
+
+/* ---------- Accueil + enquête ---------- */
+function renderWelcome(){
+  const who = APP.email ? `👤 Connecté : <b>${esc(APP.email)}</b>${APP.classe ? ' · ' + esc(APP.classe) : ''}` : '';
+  const v = APP.vote;
+  return `<section class="card hero">
+    <div>
+      <div class="kicker">Comptabilité · 3e et 4e EQ · Fiche « Le patrimoine »</div>
+      <h1>Mon patrimoine personnel</h1>
+      <p class="sub">Ce que tu possèdes, ce que tu dois… et ce qui t'appartient vraiment.</p>
+      <div class="counters">
+        <span class="counter">🗺️ <b>${LEVELS.length}</b> missions</span>
+        <span class="counter">❓ <b>${TOTAL_Q}</b> questions</span>
+        <span class="counter">⭐ <b>${TOTAL_XP}</b> XP</span>
+        <span class="counter">🏅 <b>${BADGES.length}</b> badges</span>
+        <span class="counter">⏱️ environ <b>${EST_MIN}</b> min</span>
+      </div>
+      <div class="who">${who}</div>
+    </div>
+    <div>
+      <div class="cover" aria-hidden="true">
+        <div class="cv-col"><div class="col cv-av"><span>📱</span><span>🛴</span><span>💶</span><b>avoirs</b></div></div>
+        <div class="cv-col"><div class="col cv-cap"><span>🙂</span><b>capital</b></div><div class="col cv-de"><b>dettes</b></div></div>
+      </div>
+      <div class="cover-cap">Ton patrimoine</div>
+    </div>
+  </section>
+  <section class="card enquete">
+    <div class="kicker">Avant de commencer</div>
+    <h2>🕵️ Mène l'enquête ! Qui est le plus riche ?</h2>
+    <p class="note" style="margin-top:4px">Noah et Inès ont le même âge. Lis leur situation, puis vote. Garde ton avis en tête : tu boucleras l'enquête à la fin de la mission 3.</p>
+    <div class="suspects">
+      <div class="suspect ${v === 'noah' ? 'voted' : ''}">
+        <div class="s-head">${avatar('noah')}<div><b>Noah</b><small>19 ans</small></div></div>
+        <ul class="s-list">
+          <li>🚗 Une voiture qui vaut 14&nbsp;000&nbsp;€</li><li>📱 Un smartphone de 1&nbsp;100&nbsp;€</li><li>💶 250&nbsp;€ sur son compte</li>
+          <li class="d">🏦 Pour acheter la voiture, il a emprunté : il doit encore 13&nbsp;200&nbsp;€ à la banque</li><li class="d">👦 Il doit aussi 600&nbsp;€ à son frère</li>
+        </ul>
+      </div>
+      <div class="suspect ${v === 'ines' ? 'voted' : ''}">
+        <div class="s-head">${avatar('ines')}<div><b>Inès</b><small>19 ans</small></div></div>
+        <ul class="s-list">
+          <li>🚲 Un vélo qui vaut 450&nbsp;€</li><li>💻 Un ordinateur portable de 650&nbsp;€</li><li>🐷 2&nbsp;300&nbsp;€ sur son livret d'épargne</li>
+          <li>🤝 Elle a prêté 100&nbsp;€ à une amie</li><li class="c">✅ Elle ne doit rien à personne</li>
+        </ul>
+      </div>
+    </div>
+    <p class="vote-q">À ton avis, qui est le plus riche ?</p>
+    <div class="vote-row">
+      <button class="vote ${v === 'noah' ? 'on' : ''}" id="voteNoah" aria-pressed="${v === 'noah'}" onclick="setVote('noah')">Noah</button>
+      <button class="vote ${v === 'ines' ? 'on' : ''}" id="voteInes" aria-pressed="${v === 'ines'}" onclick="setVote('ines')">Inès</button>
+    </div>
+    <div class="center">
+      <button class="btn primary big" id="startBtn" ${v ? '' : 'disabled'} onclick="setScreen('hub')">${v ? "J'ai voté : c'est parti ➜" : 'Vote pour commencer'}</button>
+      <p class="note" style="margin-top:8px">${v ? 'Ton vote est enregistré. On en reparle à la fin !' : 'Ce vote ne compte pas dans tes points.'}</p>
+    </div>
+    <div class="lb-row">
+      <button class="btn green sm" onclick="openLB('app')">🏆 Classement</button>
+      <button class="btn orange sm" onclick="openLB('global')">🌍 Général</button>
+    </div>
+  </section>`;
+}
+function setVote(v){ APP.vote = v; rerender(); }
+
+/* ---------- Parcours ---------- */
+function renderHub(){
+  let h = allDone() ? renderFinal() : '';
+  h += `<section class="card hub-intro"><h1>🗺️ Ton parcours</h1><p>Trois missions, à faire dans l'ordre : chacune se débloque quand la précédente est terminée.${APP.vote ? ` Ton pari pour l'enquête : <b>${APP.vote === 'noah' ? 'Noah' : 'Inès'}</b>.` : ''}</p></section>`;
+  h += '<div class="path">' + LEVELS.map((lv,l) => {
+    const done = APP.completed.has(l), un = isUnlocked(l);
+    const started = !done && lv.questions.some((_,i) => (APP.qs[key(l,i)] || {}).done);
+    const xp = levelEarned(l);
+    const info = done ? `<span class="stars">${starsOf(xp / lv.maxPoints)}</span><span class="xpinfo">${fmt(xp)} / ${lv.maxPoints} XP</span>`
+                      : `<span class="xpinfo">${lv.questions.length} questions · ${lv.maxPoints} XP à gagner</span>`;
+    const btn = done ? 'Voir le bilan ➜' : !un ? '🔒 Verrouillée' : started ? 'Continuer ➜' : 'Commencer ➜';
+    return `<div class="step ${l % 2 ? 'right' : 'left'}">
+      <div class="node ${done ? 'done' : un ? 'open' : 'locked'}">${done ? '✓' : un ? l + 1 : '🔒'}</div>
+      <button class="mcard ${un ? '' : 'locked'}" id="mcard${l}" ${un ? '' : 'disabled'} onclick="goLevel(${l})">
+        <span class="mc-top"><span class="mc-ico">${lv.icon}</span><span class="kicker">Mission ${l + 1}</span></span>
+        <b class="mc-title">${lv.title}</b><span class="mc-desc">${lv.desc}</span>${info}<span class="mc-btn">${btn}</span>
+      </button></div>`;
+  }).join('') + '</div>';
+  h += renderBadges();
+  return h;
+}
+function renderBadges(){
+  return `<section class="card"><h2>🏅 Vitrine des badges <small class="note">${APP.badges.size} / ${BADGES.length}</small></h2>
+    <div class="badges">${BADGES.map(b => `<div class="badge ${APP.badges.has(b.id) ? '' : 'off'}"><span class="bi">${b.icon}</span><b>${b.name}</b><small>${b.cond}</small></div>`).join('')}</div></section>`;
+}
+
+/* ---------- Briefing ---------- */
+function renderBrief(l){
+  const lv = LEVELS[l], p = APP.pred[l];
+  return `<section class="card brief">
+    <div class="brief-head"><div class="big-ico">${lv.icon}</div><div>
+      <div class="kicker">Mission ${l + 1} sur ${LEVELS.length} · ${lv.questions.length} questions · ${lv.maxPoints} XP en jeu</div>
+      <h1 class="h1m">${lv.title}</h1></div></div>
+    <div class="goals"><h3>🎯 À la fin de cette mission, tu sauras…</h3><ul>${lv.goals.map(g => `<li>${g}</li>`).join('')}</ul></div>
+    ${renderVideo(lv.video)}
+    <div class="box rappel"><h3>📌 Rappel</h3>${lv.rappel}</div>
+    <div class="box ex"><h3>🧡 Exemple</h3>${lv.exemple}</div>
+    <details class="box plus"><summary>✨ Pour aller plus loin <small>(non évalué)</small></summary>${lv.plus}</details>
+    <div class="predict"><h3>🔮 Combien de questions penses-tu réussir du premier coup ?</h3>
+      <div class="pred-row">${Object.entries(PRED).map(([k,v]) => `<button class="pred ${p === k ? 'on' : ''}" id="pred_${k}" aria-pressed="${p === k}" onclick="setPred('${k}')">${v}</button>`).join('')}</div></div>
+    <div class="brief-actions">
+      <button class="btn ghost" onclick="setScreen('hub')">← Parcours</button>
+      <button class="btn primary big" id="goBtn" ${p ? '' : 'disabled'} onclick="startMission()">${p ? "C'est parti ➜" : 'Fais ta prédiction pour commencer'}</button>
+    </div></section>`;
+}
+function setPred(k){
+  APP.pred[APP.level] = k;
+  Object.keys(PRED).forEach(x => { const b = $('pred_' + x); if (b) { b.classList.toggle('on', x === k); b.setAttribute('aria-pressed', x === k); } });
+  const g = $('goBtn'); if (g) { g.disabled = false; g.textContent = "C'est parti ➜"; }
+}
+
+/* ---------- Lecteur des mini-vidéos ---------- */
+function renderVideo(id){
+  const V = VIDEOS[id]; if (!V) return '';
+  const sc = APP.vid.id === id ? APP.vid.scene : 0;
+  const started = APP.vid.playing || sc > 0;
+  const secs = Math.round(V.scenes.reduce((s,x) => s + x.d, 0) / 1000);
+  return `<div class="video"><div class="vhead">🎬 Mini-vidéo : ${V.title} <small>≈ ${secs} s</small></div>
+    <div class="vstage v-${id} ${started ? 'started' : ''} ${stageCls(sc)}" id="vstage"><div class="vin">${V.stage()}</div><button class="vbig" onclick="vidPlay()" aria-label="Lancer la vidéo">▶</button></div>
+    <div class="vcap" id="vcap" aria-live="polite">${V.scenes[sc].cap}</div>
+    <div class="vctrl"><button class="btn sm" id="vbtn" onclick="vidToggle()">${vidBtnLabel()}</button>
+      <div class="vprog" id="vprog">${V.scenes.map((_,i) => `<span class="${i <= sc && started ? 'on' : ''}"></span>`).join('')}</div></div></div>`;
+}
+function stageCls(sc){ let c = ''; for (let i = 1; i <= sc; i++) c += ' s' + i; return c; }
+function vidBtnLabel(){
+  const V = VIDEOS[APP.vid.id]; if (!V) return '▶ Lecture';
+  if (APP.vid.playing) return '⏸ Pause';
+  return APP.vid.scene >= V.scenes.length - 1 ? '↻ Revoir' : (APP.vid.scene > 0 ? '▶ Reprendre' : '▶ Lecture');
+}
+function vidSync(){
+  const V = VIDEOS[APP.vid.id], st = $('vstage'); if (!V || !st) return;
+  const sc = APP.vid.scene;
+  st.className = `vstage v-${APP.vid.id} started ${stageCls(sc)}`;
+  $('vcap').innerHTML = V.scenes[sc].cap;
+  $('vbtn').textContent = vidBtnLabel();
+  $('vprog').innerHTML = V.scenes.map((_,i) => `<span class="${i <= sc ? 'on' : ''}"></span>`).join('');
+}
+function vidPlay(){
+  const V = VIDEOS[APP.vid.id]; if (!V) return;
+  if (APP.vid.scene >= V.scenes.length - 1) APP.vid.scene = 0;
+  APP.vid.playing = true; vidSync(); vidSchedule();
+}
+function vidSchedule(){
+  clearTimeout(APP.vid.t);
+  const V = VIDEOS[APP.vid.id];
+  APP.vid.t = setTimeout(() => {
+    if (!APP.vid.playing || APP.screen !== 'brief') return;
+    APP.vid.scene++;
+    if (APP.vid.scene >= V.scenes.length - 1) { APP.vid.scene = V.scenes.length - 1; APP.vid.playing = false; }
+    vidSync();
+    if (APP.vid.playing) vidSchedule();
+  }, V.scenes[APP.vid.scene].d);
+}
+function vidToggle(){
+  if (APP.vid.playing) { APP.vid.playing = false; clearTimeout(APP.vid.t); vidSync(); }
+  else vidPlay();
+}
+function stopVideo(){ clearTimeout(APP.vid.t); APP.vid.playing = false; }
+
+/* ============================================================
+   QUESTIONS — RENDU
+   ============================================================ */
+function renderQuestion(l, qi){
+  const lv = LEVELS[l], Q = lv.questions[qi], st = getS(l, qi);
+  const tries = Q.type === 'vf' ? 1 : 2;
+  const pills = lv.questions.map((_,i) => {
+    const s = APP.qs[key(l,i)];
+    return `<span class="pill ${i === qi ? 'cur' : ''} ${s && s.done ? s.status : ''}" title="Question ${i + 1}">${i + 1}</span>`;
+  }).join('');
+  let actions = '';
+  if (!st.done && Q.type !== 'vf') actions = `<button class="btn primary" id="checkBtn" ${canCheck(Q, st) ? '' : 'disabled'} onclick="checkQ()">Vérifier ✔</button>`;
+  if (st.done) actions = qi < lv.questions.length - 1
+    ? `<button class="btn primary" id="nextBtn" onclick="nextQ()">Question suivante ➜</button>`
+    : `<button class="btn primary" id="nextBtn" onclick="nextQ()">Voir le bilan de la mission ➜</button>`;
+  return `<section>
+    <div class="qtop"><button class="btn ghost sm" onclick="setScreen('hub')">🗺️ Parcours</button><span class="qtitle">${lv.icon} Mission ${l + 1} · Question ${qi + 1} / ${lv.questions.length}</span></div>
+    <div class="pills">${pills}</div>
+    <article class="card" id="qcard">
+      <div class="qtag">${TYPE_LABEL[Q.type]} — ${tries} essai${tries > 1 ? 's' : ''} · ${Q.pts} XP</div>
+      <h2 class="prompt">${Q.prompt}</h2>
+      ${Q.data ? `<div class="data">${Q.data}</div>` : ''}
+      ${RENDER[Q.type](Q, st, l, qi)}
+      <div aria-live="polite">${st.fb || ''}</div>
+      <div class="qactions">${actions}</div>
+    </article></section>`;
+}
+function canCheck(Q, st){
+  switch (Q.type) {
+    case 'qcm':   return st.sel != null;
+    case 'multi': return st.multi.length > 0;
+    case 'input': return String(st.val || '').trim() !== '';
+    case 'zones': return Q.items.every((_,i) => st.place[i] != null);
+    case 'match': return Q.pairs.every((_,i) => st.place[i] != null);
+    case 'order': return !!st.slots && st.slots.every(x => x != null);
+    case 'hunt':  return st.tries > 0 || st.marks.length > 0;
+  }
+  return false;
+}
+const RENDER = {
+  vf(Q, st){
+    return `<div class="statement">${Q.statement}</div><div class="vf-row">` + [[true,'✅ Vrai'],[false,'❌ Faux']].map(([v,lab]) => {
+      let c = ''; if (st.done) { if (v === Q.answer) c = 'ok'; else if (st.sel === v) c = 'bad'; }
+      return `<button class="opt vf ${c}" id="vf_${v}" ${st.done ? 'disabled' : ''} onclick="answerVF(${v})">${lab}</button>`;
+    }).join('') + '</div>';
+  },
+  qcm(Q, st){
+    return '<div class="opts">' + Q.options.map((o,i) => {
+      const wrong = st.wrong.includes(i);
+      let c = wrong ? 'bad' : (st.sel === i && !st.done ? 'sel' : '');
+      if (st.done && i === Q.correct) c = 'ok';
+      return `<button class="opt ${c}" id="o${i}" ${st.done || wrong ? 'disabled' : ''} onclick="pickOpt(${i})"><span class="letter">${'ABCD'[i]}</span><span>${o}</span></button>`;
+    }).join('') + '</div>';
+  },
+  multi(Q, st, l, qi){
+    const ord = st.order || (st.order = shuffled(Q.options.length, l * 31 + qi * 7 + 11));
+    return '<p class="hint-line">Plusieurs réponses possibles : clique pour cocher ou décocher.</p><div class="opts">' + ord.map(i => {
+      const o = Q.options[i], on = st.multi.includes(i);
+      let c = on ? 'sel' : '';
+      if (st.done) c = (o.ok && on) ? 'ok' : (!o.ok && on) ? 'bad' : (o.ok && !on) ? 'miss' : '';
+      return `<button class="opt ${c}" id="m${i}" ${st.done ? 'disabled' : ''} aria-pressed="${on}" onclick="toggleMulti(${i})"><span class="ckbox">${on ? '✔' : ''}</span><span>${o.t}</span></button>`;
+    }).join('') + '</div>';
+  },
+  input(Q, st){
+    const cls = st.done ? (st.status === 'shown' ? 'bad' : 'ok') : '';
+    return `<div class="inrow"><input id="ans" class="ans ${cls}" inputmode="decimal" autocomplete="off" aria-label="Ta réponse" placeholder="Ta réponse (tu peux écrire un calcul)" value="${esc(st.val)}" ${st.done ? 'disabled' : ''} oninput="onInput(this)" onkeydown="if(event.key==='Enter')checkQ()"><span class="unit">${Q.unit || ''}</span></div>
+      <div class="calc" id="calc">${calcPreview(st.val)}</div>`;
+  },
+  zones(Q, st, l, qi){
+    const ord = st.order || (st.order = shuffled(Q.items.length, l * 31 + qi * 7 + 11));
+    const chip = i => {
+      const lk = st.lock[i];
+      let c = lk ? 'lk-' + lk : '';
+      if (st.pick === i) c += ' picked';
+      if (st.bounce.includes(i)) c += ' bounce';
+      const corr = lk === 'r' ? `<span class="corr">→ ${Q.zones.find(z => z.id === Q.items[i].z).label}</span>` : '';
+      return `<button class="chip ${c}" id="c${i}" ${lk || st.done ? 'disabled' : ''} onclick="pickChip(${i})">${Q.items[i].t}${corr}</button>`;
+    };
+    const reserve = ord.filter(i => st.place[i] == null);
+    let h = st.done ? '' : '<p class="hint-line">Clique une étiquette, puis la colonne où tu veux la ranger. Clique une étiquette rangée pour la renvoyer dans la réserve.</p>';
+    if (!st.done) h += `<div class="reserve" aria-label="Réserve d'étiquettes">${reserve.length ? reserve.map(chip).join('') : '<span class="empty">Toutes les étiquettes sont rangées : vérifie !</span>'}</div>`;
+    h += '<div class="zones">' + Q.zones.map(z => {
+      const inZ = ord.filter(i => st.place[i] === z.id);
+      return `<div class="zone z-${z.cls}"><button class="zone-head" id="z_${z.id}" ${st.done ? 'disabled' : ''} onclick="dropZone('${z.id}')"><b>${z.label}</b><small>${z.sub}</small>${(!st.done && st.pick != null) ? '<span class="drop">⬇ Déposer ici</span>' : ''}</button><div class="zone-body">${inZ.map(chip).join('')}</div></div>`;
+    }).join('') + '</div>';
+    return h;
+  },
+  match(Q, st, l, qi){
+    const defs = Q.pairs.map(p => p.def).concat(Q.extra);
+    const ord = st.order || (st.order = shuffled(defs.length, l * 31 + qi * 7 + 11));
+    return '<div class="match">' + Q.pairs.map((p,i) => {
+      const lk = st.lock[i], v = st.place[i];
+      return `<div class="mrow ${lk ? 'lk-' + lk : ''}"><div class="mterm">${p.term}</div>
+        <select id="s${i}" aria-label="Définition de ${p.term}" ${lk || st.done ? 'disabled' : ''} onchange="pickMatch(${i}, this.value)"><option value="">— Choisis la définition —</option>${ord.map(d => `<option value="${d}" ${v === d ? 'selected' : ''}>${defs[d]}</option>`).join('')}</select>
+        ${v != null ? `<span class="mdef">→ ${defs[v]}</span>` : ''}
+        ${lk === 'r' ? `<span class="corr">✏️ ${p.def}</span>` : ''}</div>`;
+    }).join('') + '</div>';
+  },
+  order(Q, st, l, qi){
+    const all = Q.steps.concat(Q.extra), n = Q.steps.length;
+    const ord = st.order || (st.order = shuffled(all.length, l * 31 + qi * 7 + 11));
+    if (!st.slots) st.slots = Array(n).fill(null);
+    const used = new Set(st.slots.filter(x => x != null));
+    let h = st.done ? '' : '<p class="hint-line">Clique les étapes dans l\'ordre : chacune se range dans la première case libre. Clique une étape placée pour la retirer.</p>';
+    h += '<ol class="slots">';
+    for (let s = 0; s < n; s++) {
+      const it = st.slots[s], lk = st.lock[s];
+      h += `<li class="slot ${lk ? 'lk-' + lk : ''}"><span class="num">${s + 1}</span>${it == null ? '<span class="ph">…</span>' : `<button class="chip" id="sl${s}" ${lk || st.done ? 'disabled' : ''} onclick="unslot(${s})">${all[it]}</button>`}${lk === 'r' ? `<span class="corr">→ ${Q.steps[s]}</span>` : ''}</li>`;
+    }
+    h += '</ol>';
+    const pool = ord.filter(i => !used.has(i));
+    if (!st.done) h += `<div class="reserve" aria-label="Étapes à placer">${pool.map(i => `<button class="chip ${st.bounce.includes(i) ? 'bounce' : ''}" id="p${i}" onclick="slotIt(${i})">${all[i]}</button>`).join('')}</div>`;
+    else if (pool.length) h += `<p class="hint-line">Intrus non utilisés : ${pool.filter(i => i >= n).map(i => '« ' + all[i] + ' »').join(' ; ')}</p>`;
+    return h;
+  },
+  hunt(Q, st){
+    return `<div class="doc"><div class="doc-title">📓 ${Q.title}</div>` + Q.lines.map((ln,i) => {
+      const lk = st.lock[i], on = st.marks.includes(i);
+      let c = lk ? 'lk-' + lk : (on ? 'marked' : '');
+      return `<button class="line ${c}" id="h${i}" ${lk || st.done ? 'disabled' : ''} aria-pressed="${on || !!lk}" onclick="toggleHunt(${i})">${ln.t}${(st.done && ln.err) ? `<span class="corr">✏️ ${ln.fix}</span>` : ''}</button>`;
+    }).join('') + '</div>';
+  }
+};
+function calcPreview(s){
+  const r = evalExpr(s || '');
+  if (r === null) return '';
+  const pretty = String(s).replace(/\*/g,' × ').replace(/\//g,' ÷ ').replace(/\s+/g,' ');
+  return `🧮 ${esc(pretty)} → = <b>${fmt(r)}</b>`;
+}
+
+/* ============================================================
+   QUESTIONS — INTERACTIONS
+   ============================================================ */
+function pickOpt(i){ const st = curS(); if (st.done || st.wrong.includes(i)) return; st.sel = i; rerender(); }
+function toggleMulti(i){ const st = curS(); if (st.done) return; const k = st.multi.indexOf(i); if (k >= 0) st.multi.splice(k,1); else st.multi.push(i); rerender(); }
+function onInput(el){ const st = curS(); st.val = el.value; $('calc').innerHTML = calcPreview(el.value); const b = $('checkBtn'); if (b) b.disabled = !el.value.trim(); }
+function pickChip(i){
+  const st = curS(); if (st.done || st.lock[i]) return;
+  st.bounce = [];
+  if (st.place[i] != null) { delete st.place[i]; st.pick = null; }
+  else st.pick = (st.pick === i ? null : i);
+  rerender();
+}
+function dropZone(z){
+  const st = curS(); if (st.done || st.pick == null) return;
+  st.place[st.pick] = z; st.pick = null; st.bounce = [];
+  rerender();
+}
+function pickMatch(i, v){ const st = curS(); if (st.done || st.lock[i]) return; if (v === '') delete st.place[i]; else st.place[i] = +v; st.bounce = []; rerender(); }
+function slotIt(item){
+  const st = curS(); if (st.done) return;
+  const s = st.slots.findIndex((x,k) => x == null && !st.lock[k]); if (s < 0) return;
+  st.slots[s] = item; st.bounce = []; rerender();
+}
+function unslot(s){ const st = curS(); if (st.done || st.lock[s]) return; st.slots[s] = null; st.bounce = []; rerender(); }
+function toggleHunt(i){
+  const st = curS(); if (st.done || st.lock[i]) return;
+  const k = st.marks.indexOf(i); if (k >= 0) st.marks.splice(k,1); else st.marks.push(i);
+  rerender();
+}
+
+/* ============================================================
+   QUESTIONS — CORRECTION
+   ============================================================ */
+const extra  = Q => (Q.verdict ? verdictNote() : '');
+const fbOk   = (Q, tries) => `<div class="fb ${tries === 1 ? 'ok' : 'ok2'}"><b>${tries === 1 ? '✅ Exact !' : '🔄 Bien corrigé !'}</b> ${Q.explain}${extra(Q)}</div>`;
+const fbShown = (Q, lead) => `<div class="fb bad"><b>👁 Voici la correction.</b> ${lead}<div class="expl">${Q.explain}</div>${extra(Q)}</div>`;
+const fbWarn = (hint, pre) => `<div class="fb warn"><b>🤔 Pas encore…</b> ${pre || ''} 💡 ${hint} <i>Il te reste un essai.</i></div>`;
+const fbItems = (k, n, hint) => `<div class="fb warn"><b>🔒 ${k} sur ${n} ${k > 1 ? 'sont justes et verrouillés' : 'est juste et verrouillé'}.</b> Les autres sont revenus à leur point de départ. 💡 ${hint} <i>Il te reste un essai.</i></div>`;
+
+function verdictNote(){
+  if (APP.vote === 'noah') return `<div class="enq-note">🕵️ Au début, tu avais misé sur <b>Noah</b>. C'est le piège de l'enquête : posséder beaucoup de choses ne veut pas dire être riche. Ce qui compte, c'est le capital !</div>`;
+  if (APP.vote === 'ines') return `<div class="enq-note">🕵️ Au début, tu avais misé sur <b>Inès</b> : ton intuition était la bonne ! Maintenant, tu sais le prouver avec le capital.</div>`;
+  return '';
+}
+
+function checkQ(){
+  const Q = curQ(), st = curS();
+  if (st.done || !canCheck(Q, st)) return;
+  CHECK[Q.type](Q, st);
+  rerender();
+}
+function answerVF(v){
+  const Q = curQ(), st = curS(); if (st.done) return;
+  st.sel = v; st.tries = 1;
+  if (v === Q.answer) resolve(Q, st, 'correct', Q.pts, fbOk(Q, 1));
+  else resolve(Q, st, 'shown', 0, `<div class="fb bad"><b>❌ Pas cette fois…</b> ${Q.explain}</div>`);
+  rerender();
+}
+function simpleCheck(Q, st, ok, firstFailPre, shownLead, onFirstFail){
+  st.tries++;
+  if (ok) resolve(Q, st, st.tries === 1 ? 'correct' : 'hint', st.tries === 1 ? Q.pts : Q.pts / 2, fbOk(Q, st.tries));
+  else if (st.tries < 2) { if (onFirstFail) onFirstFail(); wrongTry(st, fbWarn(Q.hint, firstFailPre)); }
+  else resolve(Q, st, 'shown', 0, fbShown(Q, shownLead));
+}
+const CHECK = {
+  qcm(Q, st){
+    const pick = st.sel;
+    simpleCheck(Q, st, pick === Q.correct, '', `La bonne réponse était : <b>${Q.options[Q.correct]}</b>`,
+      () => { st.wrong.push(pick); st.sel = null; });
+    if (st.done && st.status === 'shown' && !st.wrong.includes(pick)) st.wrong.push(pick);
+  },
+  multi(Q, st){
+    const ok = Q.options.every((o,i) => o.ok === st.multi.includes(i));
+    simpleCheck(Q, st, ok, '', 'Les bonnes réponses sont en vert ; celles qui manquaient sont en pointillés.');
+  },
+  input(Q, st){
+    const v = parseNum(st.val);
+    if (isNaN(v)) { st.fb = `<div class="fb warn">✍️ Écris un nombre (par exemple 1250) ou un calcul (par exemple 1500 - 250).</div>`; return; }
+    simpleCheck(Q, st, Math.abs(v - Q.answer) <= 0.02, `Ta réponse : ${fmt(v)} ${Q.unit}.`, `La bonne réponse était : <b>${fmt(Q.answer)} ${Q.unit}</b>.`);
+  },
+  zones(Q, st){ itemsCheck(Q, st, Q.items.length, i => st.place[i] === Q.items[i].z, i => { st.bounce.push(i); delete st.place[i]; }); },
+  match(Q, st){ itemsCheck(Q, st, Q.pairs.length, i => st.place[i] === i, i => { delete st.place[i]; }); },
+  order(Q, st){ itemsCheck(Q, st, Q.steps.length, s => st.slots[s] === s, s => { st.bounce.push(st.slots[s]); st.slots[s] = null; }); },
+  hunt(Q, st){
+    st.tries++;
+    let fa = 0;
+    st.marks.forEach(i => { if (st.lock[i]) return; if (Q.lines[i].err) st.lock[i] = st.tries === 1 ? 'g' : 'o'; else fa++; });
+    st.fa += fa;
+    st.marks = st.marks.filter(i => Q.lines[i].err);
+    const errs = Q.lines.map((ln,i) => ln.err ? i : -1).filter(i => i >= 0);
+    const found = errs.filter(i => st.lock[i]).length;
+    const faTxt = fa ? ` · ${fa} fausse${fa > 1 ? 's' : ''} alerte${fa > 1 ? 's' : ''} (−${fa} XP) : ${fa > 1 ? 'ces phrases étaient justes' : 'cette phrase était juste'}.` : '';
+    if (found === errs.length || st.tries >= 2) {
+      errs.forEach(i => { if (!st.lock[i]) st.lock[i] = 'r'; });
+      const v = Q.pts / errs.length; let e = 0, g = 0, r = 0;
+      errs.forEach(i => { const L = st.lock[i]; if (L === 'g') { e += v; g++; } else if (L === 'o') e += v / 2; else r++; });
+      e -= st.fa;
+      const status = (g === errs.length && st.fa === 0) ? 'correct' : r === 0 ? 'hint' : 'shown';
+      const faAll = st.fa ? ` <i>Fausses alertes : −${st.fa} XP.</i>` : '';
+      const fb = status === 'correct' ? fbOk(Q, 1)
+               : status === 'hint' ? `<div class="fb ok2"><b>🔄 Toutes les erreurs sont trouvées !</b> ${Q.explain}${faAll}</div>`
+               : fbShown(Q, 'Les erreurs oubliées sont en rouge, avec leur correction.' + faAll);
+      resolve(Q, st, status, e, fb);
+    } else {
+      wrongTry(st, `<div class="fb warn"><b>🔒 ${found} erreur${found > 1 ? 's' : ''} sur ${errs.length} trouvée${found > 1 ? 's' : ''}</b>${faTxt} 💡 ${Q.hint} <i>Il te reste un essai.</i></div>`);
+    }
+  }
+};
+/* Exercices à éléments : verrouillage progressif (CONVENTIONS §3.8) */
+function itemsCheck(Q, st, n, isOk, sendBack){
+  st.tries++; st.bounce = []; st.pick = null;
+  for (let i = 0; i < n; i++) {
+    if (st.lock[i]) continue;
+    if (isOk(i)) st.lock[i] = st.tries === 1 ? 'g' : 'o';
+    else if (st.tries === 1) sendBack(i);
+    else st.lock[i] = 'r';
+  }
+  const nOk = Object.values(st.lock).filter(x => x === 'g' || x === 'o').length;
+  if (st.tries === 1 && nOk < n) wrongTry(st, fbItems(nOk, n, Q.hint));
+  else itemFinish(Q, st, n);
+}
+function itemFinish(Q, st, n){
+  const v = Q.pts / n; let e = 0, g = 0, r = 0;
+  for (let i = 0; i < n; i++) { const L = st.lock[i]; if (L === 'g') { e += v; g++; } else if (L === 'o') e += v / 2; else r++; }
+  const status = g === n ? 'correct' : r === 0 ? 'hint' : 'shown';
+  resolve(Q, st, status, e, status === 'shown' ? fbShown(Q, 'Les éléments en rouge portent leur correction.') : fbOk(Q, status === 'correct' ? 1 : 2));
+}
+function wrongTry(st, fb){ st.fb = fb; APP.streak = 0; APP.shake = true; SFX.bad(); updateHUD(); }
+
+function resolve(Q, st, status, earned, fb){
+  st.done = true; st.status = status; st.earned = Math.max(0, earned); st.fb = fb;
+  APP.score = computeScore();
+  if (status === 'correct') { APP.streak++; APP.bestStreak = Math.max(APP.bestStreak, APP.streak); } else APP.streak = 0;
+  if (st.earned > 0) { burst(APP.lastPt.x, APP.lastPt.y); floatXP(st.earned); SFX.ok(); } else { APP.shake = true; SFX.bad(); }
+  if (status === 'correct' && [3,5,10].includes(APP.streak)) combo(APP.streak);
+  if (APP.streak >= 5) award('streak5');
+  if (Q.badge && status === 'correct') award(Q.badge);
+  checkRank();
+  const l = APP.level;
+  if (LEVELS[l].questions.every((_,i) => (APP.qs[key(l,i)] || {}).done)) completeLevel(l);
+}
+
+/* ---------- Fin de mission ---------- */
+function bucket(r){ return r >= 1 ? 'all' : r >= .625 ? 'three' : 'half'; }
+function completeLevel(l){
+  if (APP.completed.has(l)) return;           // anti-doublon
+  APP.completed.add(l);
+  const lv = LEVELS[l], pts = levelEarned(l);
+  const t0 = APP.levelStart[l], temps = t0 ? Math.round((Date.now() - t0) / 1000) : 0;
+  APP.exerciseTimes[l] = temps; APP.exerciseScores[l] = pts;
+  sendResult(`Mission ${l + 1} — ${lv.title}`, pts, lv.maxPoints, temps);
+  const c = levelCounts(l);
+  if (l === 0) award('first');
+  if (c.correct === c.n) award('perfect');
+  if (APP.pred[l] && APP.pred[l] === bucket(c.correct / c.n)) award('predict');
+  if (allDone()) award('finish');
+  SFX.level();
+}
+function renderBilan(l){
+  const lv = LEVELS[l], c = levelCounts(l), p = c.correct / c.n, xp = levelEarned(l), g = gradeOf(p);
+  const pr = APP.pred[l];
+  let predMsg = '';
+  if (pr) {
+    const b = bucket(p), order = ['half','three','all'];
+    const end = b === pr ? 'Bonne estimation : tu te connais bien ! 🎯'
+      : order.indexOf(b) > order.indexOf(pr) ? 'Tu as fait mieux que prévu !'
+      : 'Le résultat est en dessous de ta prédiction : relis les explications des questions orange et rouges.';
+    predMsg = `<div class="pred-msg">🔮 Tu avais prédit « ${PRED[pr]} » ; tu as réussi <b>${c.correct} / ${c.n}</b> questions du premier coup. ${end}</div>`;
+  }
+  const last = l === LEVELS.length - 1;
+  return `<section class="card">
+    <div class="bilan-h"><div class="medal">${medalOf(p)}</div><div class="kicker">Bilan · Mission ${l + 1}</div><h1 class="h1m">${lv.title}</h1>
+      <p>Note : <b>${g.l} — ${g.t}</b> · ${Math.round(p * 100)} % du premier coup · <span class="stars">${starsOf(xp / lv.maxPoints)}</span> · <b style="color:var(--gold)">${fmt(xp)} / ${lv.maxPoints} XP</b></p></div>
+    <div class="legend"><span>✅ réussi du 1er coup</span><span>🔄 corrigé au 2e essai</span><span>👁 réponse montrée</span></div>
+    <table class="res-table"><tr><th>Question</th><th>Type</th><th>Résultat</th><th>XP</th></tr>
+      ${lv.questions.map((Q,i) => { const s = APP.qs[key(l,i)] || {}; const ic = s.status === 'correct' ? '✅' : s.status === 'hint' ? '🔄' : s.status === 'shown' ? '👁' : '—';
+        return `<tr><td>Question ${i + 1}</td><td>${TYPE_LABEL[Q.type]}</td><td>${ic}</td><td>${fmt(s.earned || 0)} / ${Q.pts}</td></tr>`; }).join('')}
+      <tr><td><b>Total</b></td><td></td><td>✅ ${c.correct} · 🔄 ${c.hint} · 👁 ${c.shown}</td><td><b>${fmt(xp)} / ${lv.maxPoints}</b></td></tr></table>
+    ${predMsg}
+    <div class="actions">
+      <button class="btn ghost" onclick="setScreen('hub')">🗺️ Parcours</button>
+      ${last ? `<button class="btn primary big" id="nextBtn" onclick="setScreen('hub')">🏁 Voir mon bilan final ➜</button>` : `<button class="btn primary big" id="nextBtn" onclick="nextLevel()">Mission suivante ➜</button>`}
+    </div></section>`;
+}
+
+/* ---------- Bilan final par critères et indicateurs (CONVENTIONS §4.11) ---------- */
+function bilanIndicateurs(){
+  const acc = {};
+  LEVELS.forEach((lv, l) => lv.questions.forEach((q, i) => {
+    const a = acc[q.ind] || (acc[q.ind] = { pts:0, max:0 });
+    a.max += q.pts;
+    a.pts += (APP.qs[l + '_' + i] && APP.qs[l + '_' + i].earned) || 0;
+  }));
+  const statut = r => r >= 0.8 ? 'atteint' : r >= 0.5 ? 'encours' : 'nonatteint';
+  return CRITERES.map(c => {
+    const inds = c.indicateurs.map(ind => {
+      const a = acc[ind.id] || { pts:0, max:0 };
+      const r = a.max ? a.pts / a.max : 0;
+      return Object.assign({}, ind, { ratio:r, statut:statut(r) });
+    });
+    const tot = c.indicateurs.reduce((t, ind) => { const a = acc[ind.id] || { pts:0, max:0 }; return { pts:t.pts + a.pts, max:t.max + a.max }; }, { pts:0, max:0 });
+    const r = tot.max ? tot.pts / tot.max : 0;
+    return { id:c.id, nom:c.nom, ratio:r, statut:statut(r), indicateurs:inds };
+  });
+}
+function globalCounts(){
+  const t = { correct:0, hint:0, shown:0, n:0 };
+  LEVELS.forEach((_,l) => { const c = levelCounts(l); t.correct += c.correct; t.hint += c.hint; t.shown += c.shown; t.n += c.n; });
+  return t;
+}
+const ST_LABEL = { atteint:'✅ Atteint', encours:"🟠 En cours d'acquisition", nonatteint:'❌ Non atteint' };
+function renderFinal(){
+  const t = globalCounts(), p = t.n ? t.correct / t.n : 0, g = gradeOf(p), crit = bilanIndicateurs();
+  const allOk = crit.every(c => c.indicateurs.every(i => i.statut === 'atteint'));
+  const name = APP.email ? APP.email.split('@')[0].split(/[._-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Élève';
+  const date = new Date().toLocaleDateString('fr-BE', { day:'numeric', month:'long', year:'numeric' });
+  const r = RANKS[APP.rankIdx];
+  const enq = APP.vote === 'noah' ? "Tu avais misé sur Noah… mais c'est Inès la plus riche (capital de 3&nbsp;500&nbsp;€ contre 1&nbsp;550&nbsp;€). Posséder beaucoup ne veut pas dire être riche !"
+            : APP.vote === 'ines' ? "Tu avais misé sur Inès, et tu avais raison : son capital (3&nbsp;500&nbsp;€) dépasse celui de Noah (1&nbsp;550&nbsp;€)."
+            : "Verdict : Inès est la plus riche (capital de 3&nbsp;500&nbsp;€ contre 1&nbsp;550&nbsp;€ pour Noah).";
+  return `<section class="card fiche" id="finalBilan">
+    <div class="fhead"><div><div class="kicker">🏁 Bilan final · Le patrimoine — partie 1</div><h2 style="font-size:1.6rem">Mon patrimoine personnel</h2>
+      <div class="who2">👤 ${esc(name)}${APP.classe ? ' · ' + esc(APP.classe) : ''} · 📅 ${date}</div></div>
+      <div class="gradebig g-${g.l}">${g.l}<small>${g.t}</small></div></div>
+    <div class="kpis">
+      <div class="kpi"><b style="color:var(--gold)">${fmt(APP.score)} / ${TOTAL_XP}</b><small>XP gagnés</small></div>
+      <div class="kpi"><b>${Math.round(p * 100)} %</b><small>réussi du 1er coup</small></div>
+      <div class="kpi"><b>${r.icon}</b><small>${r.name}</small></div>
+      <div class="kpi"><b>🔥 ${APP.bestStreak}</b><small>meilleure série</small></div>
+      <div class="kpi"><b>🏅 ${APP.badges.size} / ${BADGES.length}</b><small>badges</small></div>
+    </div>
+    <div class="legend"><span>✅ réussi du 1er coup</span><span>🔄 corrigé au 2e essai</span><span>👁 réponse montrée</span></div>
+    <table class="res-table"><tr><th>Mission</th><th>✅</th><th>🔄</th><th>👁</th><th>XP</th><th>Étoiles</th></tr>
+      ${LEVELS.map((lv,l) => { const c = levelCounts(l), xp = levelEarned(l); return `<tr><td>${lv.icon} ${lv.title}</td><td>${c.correct}</td><td>${c.hint}</td><td>${c.shown}</td><td>${fmt(xp)} / ${lv.maxPoints}</td><td class="stars">${starsOf(xp / lv.maxPoints)}</td></tr>`; }).join('')}
+    </table>
+    <div class="enq-recap">🕵️ <b>L'enquête :</b> ${enq}</div>
+    <h3 style="margin-top:14px">📋 Ce que je maîtrise… et ce que je dois revoir</h3>
+    ${crit.map(c => `<div class="crit"><div class="crit-h"><b>${c.id} · ${c.nom}</b><span class="st ${c.statut}">${ST_LABEL[c.statut]}</span></div>
+      ${c.indicateurs.map(i => `<div class="ind"><div>${i.texte}</div><div class="ind-r"><span class="st ${i.statut}">${ST_LABEL[i.statut]}</span> ${Math.round(i.ratio * 100)} %</div>
+        ${i.statut !== 'atteint' ? `<div class="revoir">📖 À revoir dans ton cours : <i>« ${i.chapitre} »</i> — ${i.revoir}</div>` : ''}</div>`).join('')}</div>`).join('')}
+    ${allOk ? `<div class="allok">🎉 Tous tes indicateurs sont atteints : tu maîtrises ton patrimoine personnel. Prochaine étape du cours : le patrimoine de l'entreprise !</div>` : ''}
+    <div class="actions noprint">
+      <button class="btn primary" onclick="window.print()">🖨️ Imprimer mon bilan</button>
+      <button class="btn green" onclick="openLB('app')">🏆 Classement</button>
+      <button class="btn orange" onclick="openLB('global')">🌍 Général</button>
+      <button class="btn ghost" onclick="replay()">🔄 Rejouer</button>
+    </div></section>`;
+}
+
+/* ============================================================
+   GAMIFICATION : badges, rangs, effets, sons
+   ============================================================ */
+function award(id){
+  if (APP.badges.has(id)) return;
+  const b = BADGES.find(x => x.id === id); if (!b) return;
+  APP.badges.add(id); queueFx({ type:'badge', b });
+}
+function checkRank(){
+  let idx = 0;
+  RANKS.forEach((r,i) => { if (APP.score >= Math.ceil(r.p * TOTAL_XP)) idx = i; });
+  if (idx > APP.rankIdx) { APP.rankIdx = idx; queueFx({ type:'rank', r:RANKS[idx] }); }
+}
+function queueFx(f){ APP.fx.push(f); processFx(); }
+function processFx(){
+  if (APP.fxBusy || !APP.fx.length) return;
+  const f = APP.fx.shift(); APP.fxBusy = true;
+  if (f.type === 'badge') {
+    const t = $('toast');
+    t.innerHTML = `<span class="ti">${f.b.icon}</span><div><b>Badge débloqué : ${f.b.name}</b><small>${f.b.cond}</small></div>`;
+    t.classList.add('show'); SFX.badge();
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => { APP.fxBusy = false; processFx(); }, 450); }, 3000);
+  } else {
+    $('rankIco').textContent = f.r.icon; $('rankName').textContent = f.r.name;
+    $('rankTxt').textContent = `Tu as atteint ${Math.ceil(f.r.p * TOTAL_XP)} XP. Continue comme ça !`;
+    $('rankup').hidden = false; SFX.level(); confetti(70);
+    setTimeout(() => { const b = $('rankClose'); if (b) b.focus(); }, 50);
+  }
+}
+function closeRank(){ $('rankup').hidden = true; APP.fxBusy = false; processFx(); }
+
+function burst(x, y){
+  if (!x && !y) { x = innerWidth / 2; y = innerHeight / 2; }
+  const cols = ['#22d68a','#ffc940','#4f8ef7','#ff8a3d','#8b6cf6'];
+  for (let i = 0; i < 16; i++) {
+    const d = document.createElement('div'); d.className = 'pt';
+    const a = Math.random() * Math.PI * 2, r = 40 + Math.random() * 60;
+    d.style.left = x + 'px'; d.style.top = y + 'px'; d.style.background = cols[i % cols.length];
+    d.style.setProperty('--dx', Math.cos(a) * r + 'px'); d.style.setProperty('--dy', Math.sin(a) * r + 'px');
+    $('fx').appendChild(d); setTimeout(() => d.remove(), 850);
+  }
+}
+function floatXP(n){
+  const d = document.createElement('div'); d.className = 'fxp'; d.textContent = '+' + fmt(n) + ' XP';
+  d.style.left = ((APP.lastPt.x || innerWidth / 2) - 20) + 'px'; d.style.top = ((APP.lastPt.y || innerHeight / 2) - 30) + 'px';
+  $('fx').appendChild(d); setTimeout(() => d.remove(), 1200);
+}
+function combo(n){
+  const d = document.createElement('div'); d.className = 'combo';
+  d.textContent = n >= 10 ? '⚡ INARRÊTABLE ×' + n : n >= 5 ? '🔥 EN FEU ×' + n : '🔥 COMBO ×' + n;
+  $('fx').appendChild(d); setTimeout(() => d.remove(), 1250);
+}
+function confetti(n){
+  const cols = ['#22d68a','#ffc940','#4f8ef7','#ff8a3d','#f0517a','#8b6cf6'];
+  for (let i = 0; i < n; i++) {
+    const d = document.createElement('div'); d.className = 'cf';
+    d.style.left = Math.random() * 100 + 'vw'; d.style.background = cols[i % cols.length];
+    d.style.animationDuration = (2 + Math.random() * 1.8) + 's'; d.style.animationDelay = (Math.random() * .5) + 's';
+    $('fx').appendChild(d); setTimeout(() => d.remove(), 4500);
+  }
+}
+let AC = null;
+function tone(f, start, dur, type, vol){
+  if (!APP.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + start;
+    o.type = type || 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || .08, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + dur + .05);
+  } catch (e) {}
+}
+const SFX = {
+  ok:    () => { tone(660, 0, .12); tone(990, .1, .18); },
+  bad:   () => { tone(220, 0, .22, 'triangle', .06); },
+  badge: () => { tone(784, 0, .12); tone(988, .1, .12); tone(1319, .2, .25); },
+  level: () => { [523,659,784,1047].forEach((f,i) => tone(f, i * .11, .2)); }
+};
+function toggleSound(){
+  APP.sound = !APP.sound;
+  const b = $('soundBtn'); b.textContent = APP.sound ? '🔊' : '🔇'; b.setAttribute('aria-label', APP.sound ? 'Couper le son' : 'Activer le son');
+  if (APP.sound) SFX.ok();
+}
+
+/* ---------- Rejouer ---------- */
+function resetState(){
+  stopVideo();
+  Object.assign(APP, { screen:'welcome', level:0, q:0, qs:{}, score:0, streak:0, bestStreak:0, completed:new Set(), pred:{}, vote:null,
+    badges:new Set(), rankIdx:0, fx:[], fxBusy:false, shake:false, celebrated:new Set(), finalCelebrated:false,
+    levelStart:{}, exerciseTimes:{}, exerciseScores:{} });
+  $('rankup').hidden = true; $('toast').classList.remove('show');
+}
+function replay(){
+  TRACKING.sessionId = new Date().toISOString();   // ⚠️ nouvelle session (SPEC §5.4)
+  resetState();
+  APP.globalTimerStart = Date.now();
+  setScreen('welcome');
+}
+
+/* ============================================================
+   TRACKING — Modal Email (SPEC_Tracking_Eleves_v5 §15.5)
+   ============================================================ */
+function showEmailModal(){
+  $('emailOverlay').hidden = false;
+  const input = $('emailInput');
+  const saved = lsGet('student_email');
+  if (saved) input.value = saved;
+  $('emailError').textContent = '';
+  setTimeout(() => input.focus(), 50);
+}
+function validateEmail(){
+  const input = $('emailInput'), btn = $('emailBtn'), errDiv = $('emailError');
+  const email = input.value.trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errDiv.textContent = '⚠️ Entre une adresse email valide.'; input.style.borderColor = '#ff4060'; return;
+  }
+  btn.textContent = '⏳ Vérification…'; btn.disabled = true; errDiv.textContent = ''; input.style.borderColor = '';
+  const cbName = '_emailCb_' + Date.now();
+  const timeout = setTimeout(() => {
+    delete window[cbName]; const s = $(cbName); if (s) s.remove();
+    errDiv.textContent = '⚠️ Connexion impossible. Vérifie ta connexion internet.';
+    btn.textContent = '✅ Vérifier et commencer'; btn.disabled = false;
+  }, 10000);
+  window[cbName] = function(resp){
+    clearTimeout(timeout); delete window[cbName];
+    const s = $(cbName); if (s) s.remove();
+    btn.textContent = '✅ Vérifier et commencer'; btn.disabled = false;
+    if (resp && resp.found) {
+      const oldEmail = lsGet('student_email');
+      lsSet('student_email', email); lsSet('student_classe', resp.classe || '');
+      APP.email = email; APP.classe = resp.classe || '';
+      if (oldEmail && oldEmail !== email) resetProgression();
+      TRACKING.sessionId = new Date().toISOString();
+      $('emailOverlay').hidden = true;
+      startGlobalTimer();
+      onEmailValidated();
+    } else {
+      errDiv.textContent = "⚠️ Cette adresse email n'est pas enregistrée. Vérifie l'orthographe ou demande à ton professeur de t'ajouter à la liste.";
+      input.style.borderColor = '#ff4060';
+    }
+  };
+  const s = document.createElement('script');
+  s.id = cbName;
+  s.src = `${TRACKING.scriptUrl}?action=check_email&email=${encodeURIComponent(email)}&callback=${cbName}`;
+  s.onerror = () => { clearTimeout(timeout); delete window[cbName]; s.remove(); errDiv.textContent = '⚠️ Erreur de connexion au serveur.'; btn.textContent = '✅ Vérifier et commencer'; btn.disabled = false; };
+  document.body.appendChild(s);
+}
+function onEmailValidated(){ APP.screen = 'welcome'; renderScreen(); }
+function resetProgression(){ resetState(); }
+
+/* ---------- Chronomètres ---------- */
+function startGlobalTimer(){
+  APP.globalTimerStart = Date.now();
+  const el = $('globalTimer'); if (el) el.style.display = 'inline';
+  clearInterval(APP.globalTimerInterval);
+  APP.globalTimerInterval = setInterval(updateTimerDisplay, 1000);
+  updateTimerDisplay();
+}
+function updateTimerDisplay(){
+  const el = $('globalTimer'); if (!el || !APP.globalTimerStart) return;
+  const e = Math.floor((Date.now() - APP.globalTimerStart) / 1000);
+  el.textContent = '⏱️ ' + String(Math.floor(e / 60)).padStart(2,'0') + ':' + String(e % 60).padStart(2,'0');
+}
+/* Le chronomètre d'une mission démarre à l'ouverture de son briefing (SPEC §7.6) */
+function startLevelTimer(l){ if (!APP.completed.has(l) && !APP.levelStart[l]) APP.levelStart[l] = Date.now(); }
+
+/* ---------- Envoi des résultats ---------- */
+function sendResult(niveau, points, pointsMax, temps){
+  if (!APP.email) return;
+  const payload = { email:APP.email, classe:APP.classe, app:TRACKING.appName, niveau, points, pointsMax, temps, totalNiveaux:TRACKING.totalNiveaux, sessionId:TRACKING.sessionId };
+  try {
+    fetch(TRACKING.scriptUrl, { method:'POST', mode:'no-cors', headers:{ 'Content-Type':'text/plain' }, body:JSON.stringify(payload) })
+      .catch(err => console.warn('[TRACKING] Erreur:', err));
+  } catch (err) { console.warn('[TRACKING] Erreur:', err); }
+}
+
+/* ---------- Classements (JSONP uniquement) ---------- */
+let currentLBTab = 'app';
+function openLB(tab){ $('lbOverlay').hidden = false; switchLBTab(tab || 'app'); }
+function closeLB(){ $('lbOverlay').hidden = true; }
+function switchLBTab(tab){
+  currentLBTab = tab;
+  $('lbTabApp').classList.toggle('on', tab === 'app');
+  $('lbTabGlobal').classList.toggle('on', tab === 'global');
+  const cl = APP.classe ? ' (' + APP.classe + ')' : '';
+  $('lbTitle').textContent = tab === 'app' ? '🏆 Classement — ' + TRACKING.appName + cl : '🌍 Classement général' + cl;
+  fetchLeaderboard(tab);
+}
+function fetchLeaderboard(tab){
+  const content = $('lbContent');
+  content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2)">⏳ Chargement…</div>';
+  const action = tab === 'app' ? 'leaderboard_app' : 'leaderboard_global';
+  const cbName = '_lbCb_' + Date.now();
+  const timeout = setTimeout(() => {
+    delete window[cbName]; const s = $(cbName); if (s) s.remove();
+    content.innerHTML = `<div style="text-align:center;padding:40px"><div style="color:var(--error);margin-bottom:12px">⚠️ Connexion impossible</div><button class="btn sm" onclick="fetchLeaderboard('${tab}')">Réessayer</button></div>`;
+  }, 10000);
+  window[cbName] = function(resp){
+    clearTimeout(timeout); delete window[cbName];
+    const s = $(cbName); if (s) s.remove();
+    const lbData = resp && (resp.leaderboard || resp.data);
+    if (!lbData || lbData.length === 0) { content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2)">🏁 Aucun résultat pour le moment</div>'; return; }
+    renderLeaderboard(lbData, tab);
+  };
+  let url = `${TRACKING.scriptUrl}?action=${action}&callback=${cbName}&mode=last`;
+  if (tab === 'app') url += `&app=${encodeURIComponent(TRACKING.appName)}`;
+  if (APP.classe) url += `&classe=${encodeURIComponent(APP.classe)}`;
+  const s = document.createElement('script');
+  s.id = cbName; s.src = url;
+  s.onerror = () => { clearTimeout(timeout); delete window[cbName]; s.remove(); content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--error)">⚠️ Erreur de connexion</div>'; };
+  document.body.appendChild(s);
+}
+function renderLeaderboard(data, tab){
+  const content = $('lbContent');
+  const myEmail = (APP.email || '').toLowerCase();
+  if (tab === 'global' && data.length > 0) {
+    data = data.slice().sort((a, b) => { const pa = a.pct != null ? a.pct : (a.pourcentage || 0), pb = b.pct != null ? b.pct : (b.pourcentage || 0); if (pb !== pa) return pb - pa; return (a.totalTemps || a.totalTime || 0) - (b.totalTemps || b.totalTime || 0); });
+    data.forEach((e, i) => { e.rang = i + 1; });
+  }
+  const me = data.find(r => r.email === myEmail);
+  let html = '';
+  if (me) {
+    const pct = me.pct != null ? me.pct : (me.pourcentage != null ? me.pourcentage : 0);
+    const count = tab === 'app' ? (me.niveauxCompletes || me.niveaux || 0) : (me.appsCompletes || me.apps || 0);
+    const total = tab === 'app' ? (me.totalNiveaux || 0) : (me.totalPossibleNiveaux || 0);
+    const label = tab === 'app' ? 'niveaux' : 'apps';
+    const prog = total > 0 ? count + '/' + total + ' ' + label : count + ' ' + label;
+    html += `<div style="background:rgba(34,214,138,0.08);border:1px solid rgba(34,214,138,0.3);border-radius:12px;padding:16px;margin-bottom:16px;display:flex;justify-content:space-around;text-align:center;gap:8px;flex-wrap:wrap">
+      <div><div style="font-size:1.3rem;font-weight:800;color:var(--accent)">#${me.rang}</div><div style="font-size:0.7rem;color:var(--text2)">RANG</div></div>
+      <div><div style="font-size:1.3rem;font-weight:800">${me.totalPoints}</div><div style="font-size:0.7rem;color:var(--text2)">POINTS</div></div>
+      <div><div style="font-size:1.3rem;font-weight:800;color:${pct >= 80 ? '#22d68a' : pct >= 50 ? '#ff8a3d' : '#ff4060'}">${pct}%</div><div style="font-size:0.7rem;color:var(--text2)">RÉUSSITE</div></div>
+      <div><div style="font-size:1.1rem;font-weight:800;color:var(--text2)">${prog}</div><div style="font-size:0.7rem;color:var(--text2)">PROGRESSION</div></div></div>`;
+  }
+  const medals = ['🥇','🥈','🥉'];
+  html += '<table style="width:100%;border-collapse:collapse;font-size:0.85rem"><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:8px 4px;color:var(--text2);font-size:0.72rem">#</th><th style="text-align:left;padding:8px 4px;color:var(--text2);font-size:0.72rem">Élève</th><th style="text-align:right;padding:8px 4px;color:var(--text2);font-size:0.72rem">Pts</th><th style="text-align:right;padding:8px 4px;color:var(--text2);font-size:0.72rem">%</th><th style="text-align:right;padding:8px 4px;color:var(--text2);font-size:0.72rem">Temps</th></tr>';
+  data.forEach(row => {
+    const r = row.rang || 0;
+    const name = String(row.email || '').split('@')[0].split(/[._-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const pct = row.pct != null ? row.pct : (row.pourcentage != null ? row.pourcentage : 0);
+    const temps = row.totalTemps || row.totalTime || 0;
+    const isMe = row.email === myEmail;
+    const pctC = pct >= 80 ? '#22d68a' : pct >= 50 ? '#ff8a3d' : '#ff4060';
+    let tStr = '—'; if (temps > 0) { const m = Math.floor(temps / 60), s = temps % 60; tStr = m > 0 ? m + 'm' + String(s).padStart(2,'0') + 's' : s + 's'; }
+    html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);background:${isMe ? 'rgba(34,214,138,0.08)' : 'transparent'}"><td style="padding:8px 4px;font-weight:700">${r >= 1 && r <= 3 ? medals[r - 1] : r}</td><td style="padding:8px 4px;${isMe ? 'font-weight:800;color:var(--accent);' : ''}">${esc(name)}</td><td style="padding:8px 4px;text-align:right;font-weight:700;color:var(--accent)">${row.totalPoints}</td><td style="padding:8px 4px;text-align:right;font-weight:700;color:${pctC}">${pct}%</td><td style="padding:8px 4px;text-align:right;color:var(--text2);font-family:monospace;font-size:0.78rem">${tStr}</td></tr>`;
+  });
+  html += '</table>';
+  content.innerHTML = html;
+}
+
+/* ============================================================
+   DÉMARRAGE
+   ============================================================ */
+function init(){
+  document.addEventListener('pointerdown', e => { APP.lastPt = { x:e.clientX, y:e.clientY }; }, true);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { if (!$('lbOverlay').hidden) closeLB(); else if (!$('rankup').hidden) closeRank(); }
+    if (e.key === 'Enter' || e.key === ' ') {
+      const a = document.activeElement;
+      if (a && a.getBoundingClientRect) { const r = a.getBoundingClientRect(); APP.lastPt = { x:r.left + r.width / 2, y:r.top + r.height / 2 }; }
+    }
+  }, true);
+  renderXpMarks();
+  renderScreen();
+  showEmailModal();   // toujours, même si un email est mémorisé (SPEC §7.4)
+}
+init();
+</script>
+</body>
+</html>
